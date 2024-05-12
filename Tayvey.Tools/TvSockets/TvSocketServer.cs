@@ -89,6 +89,14 @@ namespace Tayvey.Tools.TvSockets
         }
 
         /// <summary>
+        /// 析构
+        /// </summary>
+        ~TvSocketServer()
+        {
+            DisposeAsync(false);
+        }
+
+        /// <summary>
         /// 获取发送/接收缓存区
         /// </summary>
         /// <param name="isSend">是否获取发送缓存区, 反之获取接收缓存区</param>
