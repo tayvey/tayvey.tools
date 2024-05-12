@@ -244,6 +244,10 @@ namespace Tayvey.Tools.TvSockets
                     await DisposeCallBack(this);
                 }
             }
+            catch (ObjectDisposedException)
+            {
+                return;
+            }
             catch (Exception e)
             {
                 Console.WriteLine($"释放连接异常 [{e.Message}][{e.StackTrace}]");
@@ -315,6 +319,16 @@ namespace Tayvey.Tools.TvSockets
         private Task ClientDisposeCallBackAsync(TvSocketClient client) => Task.Run(() =>
         {
             _ = Clients.TryRemove($"{client.ClientIpAddress}:{client.ClientPort}", out _);
+        });
+
+        /// <summary>
+        /// 停止服务端
+        /// </summary>
+        /// <returns></returns>
+        public Task StopAsync() => Task.Run(async () =>
+        {
+            await DisposeAsync(true);
+            await LoggingAsync("服务端已主动停止");
         });
     }
 }

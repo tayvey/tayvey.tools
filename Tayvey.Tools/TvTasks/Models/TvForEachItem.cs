@@ -1,10 +1,10 @@
 ﻿namespace Tayvey.Tools.TvTasks.Models
 {
     /// <summary>
-    /// 异步任务项
+    /// Tv异步遍历项
     /// </summary>
     /// <typeparam name="T">数据类型</typeparam>
-    public sealed class TvTaskItem<T>
+    public sealed class TvForEachItem<T>
     {
         /// <summary>
         /// 数据
@@ -21,7 +21,7 @@
         /// </summary>
         /// <param name="item">数据</param>
         /// <param name="index">索引</param>
-        public TvTaskItem(T item, uint index)
+        public TvForEachItem(T item, uint index)
         {
             Item = item;
             Index = index;

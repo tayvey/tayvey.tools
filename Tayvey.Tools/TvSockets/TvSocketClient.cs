@@ -232,12 +232,12 @@ namespace Tayvey.Tools.TvSockets
         });
 
         /// <summary>
-        /// 建立连接
+        /// 启动客户端
         /// </summary>
         /// <param name="serverIpAddress">服务端IP地址</param>
         /// <param name="serverPort">服务端端口号</param>
         /// <returns></returns>
-        public async Task<bool> ConnectAsync(string serverIpAddress, ushort serverPort)
+        public async Task<bool> StartAsync(string serverIpAddress, ushort serverPort)
         {
             ServerIpAddress = serverIpAddress;
             ServerPort = serverPort;
@@ -331,10 +331,10 @@ namespace Tayvey.Tools.TvSockets
         }).Wait();
 
         /// <summary>
-        /// 主动释放连接
+        /// 停止客户端
         /// </summary>
         /// <returns></returns>
-        public Task DisposeAsync() => Task.Run(async () =>
+        public Task StopAsync() => Task.Run(async () =>
         {
             await DisposeAsync(true);
             await LoggingAsync("客户端已主动断开连接");
