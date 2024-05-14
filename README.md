@@ -1,5 +1,60 @@
 # Tayvey.Tools
 
+## 配置
+
+### 初始化
+
+WebApi初始化
+
+```C#
+using Tayvey.Tools.TvConfigs;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// 初始化
+TvConfig.InitConfiguration(builder.Configuration);
+
+var app = builder.Build();
+app.MapGet("/", () => "Hello World!");
+app.Run();
+```
+
+自定义初始化
+
+```c#
+using Tayvey.Tools.TvConfigs;
+
+// 配置文件
+var file1 = Path.Combine(AppContext.BaseDirectory, "config.json");
+var file2 = Path.Combine(AppContext.BaseDirectory, "config.test.json");
+
+// 初始化
+TvConfig.InitConfiguration(file1, file2);
+```
+
+### 读取配置
+
+配置示例
+
+```json
+{
+  "TvConfig": {
+    "Str": "str",
+    "List": ["str"]
+  }
+}
+```
+
+读取配置
+
+```C#
+using Tayvey.Tools.TvConfigs;
+
+// 需要先初始化
+TvConfig.Get<string>("TvConfig:Str");
+TvConfig.Get<List<string>>("TvConfig:List");
+```
+
 ## Socekt 服务端/客户端
 
 ### 启动&停止服务端
@@ -114,3 +169,16 @@ var ipEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 6666);
 // 转 IP地址 + 端口号
 (string? ipAddress, ushort? port) = ipEndPoint.TryParseToTuple();
 ```
+
+## 加密
+
+### MD5 32位
+
+```c#
+// 明文
+var str = "tayvey.tools";
+
+// 加密. 密文是否大写:false
+str = str.MD5Encryption(false);
+```
+
