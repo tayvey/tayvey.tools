@@ -1,9 +1,12 @@
-﻿using System;
+﻿#if NET6_0_OR_GREATER
+#elif NETSTANDARD2_1
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Tayvey.Tools.TvTasks.Models;
+#endif
 
 namespace Tayvey.Tools.TvTasks
 {
@@ -57,20 +60,23 @@ namespace Tayvey.Tools.TvTasks
                 {
                     var tvTaskItem = new TvForEachItem<T>(groupItem.item, groupItem.index);
 
-                    try
+                    await Task.Run(() =>
                     {
-                        if (options.TryAction != null)
+                        try
                         {
-                            await Task.Run(() => options.TryAction?.Invoke(tvTaskItem));
+                            if (options.TryAction != null)
+                            {
+                                options.TryAction?.Invoke(tvTaskItem);
+                            }
                         }
-                    }
-                    catch (Exception e)
-                    {
-                        if (options.CatchAction != null)
+                        catch (Exception e)
                         {
-                            await Task.Run(() => options.CatchAction?.Invoke(tvTaskItem, e));
+                            if (options.CatchAction != null)
+                            {
+                                options.CatchAction?.Invoke(tvTaskItem, e);
+                            }
                         }
-                    }
+                    });
                 }));
 
                 await Task.WhenAll(tasks);
@@ -94,33 +100,30 @@ namespace Tayvey.Tools.TvTasks
             {
                 var tvTaskItem = new TvForEachItem<T>(data, (uint)index);
 
-                try
+                if (semaphore != null)
                 {
-                    if (semaphore != null)
-                    {
-                        await semaphore.WaitAsync();
-                    }
-
-                    if (options.TryAction != null)
-                    {
-                        await Task.Run(() => options.TryAction?.Invoke(tvTaskItem));
-                    }
-
-                    options.TryAction?.Invoke(tvTaskItem);
+                    await semaphore.WaitAsync();
                 }
-                catch (Exception e)
+
+                await Task.Run(() =>
                 {
-                    if (options.CatchAction != null)
+                    try
                     {
-                        await Task.Run(() => options.CatchAction?.Invoke(tvTaskItem, e));
+                        if (options.TryAction != null)
+                        {
+                            options.TryAction?.Invoke(tvTaskItem);
+                        }
                     }
+                    catch (Exception e)
+                    {
+                        if (options.CatchAction != null)
+                        {
+                            options.CatchAction?.Invoke(tvTaskItem, e);
+                        }
+                    }
+                });
 
-                    options.CatchAction?.Invoke(tvTaskItem, e);
-                }
-                finally
-                {
-                    semaphore?.Release();
-                }
+                semaphore?.Release();
             }));
 
             return Task.WhenAll(tasks);

@@ -1,4 +1,7 @@
-﻿using System.Net;
+﻿#if NET6_0_OR_GREATER
+#elif NETSTANDARD2_1
+using System.Net;
+#endif
 
 namespace Tayvey.Tools
 {

@@ -1,10 +1,13 @@
-﻿using System;
+﻿#if NET6_0_OR_GREATER
+#elif NETSTANDARD2_1
+using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Tayvey.Tools.TvSockets.Enums;
 using Tayvey.Tools.TvSockets.Models;
+#endif
 
 namespace Tayvey.Tools.TvSockets
 {
@@ -230,7 +233,14 @@ namespace Tayvey.Tools.TvSockets
             {
                 if (CustomLogging != null)
                 {
+#if NET6_0_OR_GREATER
+                    await CustomLogging(new TvSocketLog(text, this)
+                    {
+                        Ex = e
+                    });
+#elif NETSTANDARD2_1
                     await CustomLogging(new TvSocketLog(text, this, e));
+#endif
                 }
             }
             catch (Exception e)

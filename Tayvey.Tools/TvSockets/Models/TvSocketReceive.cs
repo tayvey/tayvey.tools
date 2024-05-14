@@ -1,5 +1,8 @@
-﻿using System.Text;
+﻿#if NET6_0_OR_GREATER
+#elif NETSTANDARD2_1
+using System.Text;
 using Tayvey.Tools.TvSockets.Enums;
+#endif
 
 namespace Tayvey.Tools.TvSockets.Models
 {

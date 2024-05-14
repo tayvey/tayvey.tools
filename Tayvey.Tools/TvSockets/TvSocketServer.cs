@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if NET6_0_OR_GREATER
+#elif NETSTANDARD2_1
+using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Net;
@@ -6,28 +8,46 @@ using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Tayvey.Tools.TvSockets.Models;
+#endif
 
 namespace Tayvey.Tools.TvSockets
 {
     /// <summary>
     /// TvSocket服务端
     /// </summary>
+#if NET8_0_OR_GREATER
+    /// <param name="protoType">连接协议</param>
+    public class TvSocketServer(ProtocolType protoType)
+#elif NET6_0 || NETSTANDARD2_1
     public class TvSocketServer
+#endif
     {
         /// <summary>
         /// Socket连接
         /// </summary>
+#if NET8_0_OR_GREATER
+        private Socket Socket { get; } = new Socket(AddressFamily.InterNetwork, SocketType.Stream, protoType);
+#elif NET6_0 || NETSTANDARD2_1
         private Socket Socket { get; }
+#endif
 
         /// <summary>
         /// 客户端连接池
         /// </summary>
-        private ConcurrentDictionary<string, TvSocketClient> Clients { get; }
+#if NET6_0_OR_GREATER
+        private ConcurrentDictionary<string, TvSocketClient> Clients { get; } = new();
+#elif NETSTANDARD2_1
+        private ConcurrentDictionary<string, TvSocketClient> Clients { get; } = new ConcurrentDictionary<string, TvSocketClient>();
+#endif
 
         /// <summary>
         /// 连接协议
         /// </summary>
+#if NET8_0_OR_GREATER
+        public ProtocolType ProtoType { get; } = protoType;
+#else
         public ProtocolType ProtoType { get; }
+#endif
 
         /// <summary>
         /// 服务端IP地址
@@ -77,6 +97,8 @@ namespace Tayvey.Tools.TvSockets
         /// </summary>
         public Func<TvSocketReceive, Task<string>>? ReceiveCallBack { get; set; }
 
+#if NET8_0_OR_GREATER
+#elif NET6_0 || NETSTANDARD2_1
         /// <summary>
         /// 服务端初始化构造
         /// </summary>
@@ -84,9 +106,9 @@ namespace Tayvey.Tools.TvSockets
         public TvSocketServer(ProtocolType protoType)
         {
             Socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, protoType);
-            Clients = new ConcurrentDictionary<string, TvSocketClient>();
             ProtoType = protoType;
         }
+#endif
 
         /// <summary>
         /// 析构
@@ -213,7 +235,16 @@ namespace Tayvey.Tools.TvSockets
             {
                 if (CustomLogging != null)
                 {
+#if NET6_0_OR_GREATER
+                    await CustomLogging(new TvSocketLog(text, this)
+                    {
+                        ClientIpAddress = clientIpAddress,
+                        ClientPort = clientPort,
+                        Ex = e
+                    });
+#elif NETSTANDARD2_1
                     await CustomLogging(new TvSocketLog(text, this, clientIpAddress, clientPort, e));
+#endif
                 }
             }
             catch (Exception e)
