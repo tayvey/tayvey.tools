@@ -163,14 +163,154 @@ await range.TvForEachAsync(item =>
 
 ### IPEndPoint
 
+#### 转IP地址 + 端口号元组
+
 ```c#
 using Tayvey.Tools;
 
 // IP端点
 var ipEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 6666);
 
-// 转 IP地址 + 端口号
-(string? ipAddress, ushort? port) = ipEndPoint.TryParseToTuple();
+// 转换
+(string? ipAddress, ushort? port) = ipEndPoint.TvtpToTuple(); // ("127.0.0.1", 6666)
+```
+
+### string
+
+#### 转日期时间
+
+```c#
+using Tayvey.Tools;
+
+// 日期时间字符串
+var dateTime = "2024-05-19 19:08:02";
+var dateTime1 = "20240519190802";
+
+// 转换
+DateTime? dt = dateTime.TvtpToDateTime(); // 2024-05-19 19:08:02
+DateTime? dt1 = dateTime1.TvtpToDateTime("yyyyMMddHHmmss"); // 20240519190802
+```
+
+#### 转int32
+
+```c#
+using Tayvey.Tools;
+
+// int32字符串
+var int32 = "12345";
+
+// 转换
+int? dt = int32.TvtpToInt32(); // 12345
+```
+
+#### 转枚举项
+
+```c#
+using Tayvey.Tools;
+
+/// <summary>
+/// 枚举对象
+/// </summary>
+public enum Test
+{
+    None = 0
+}
+
+// 枚举项字符串
+var enumStr = "None";
+
+// 转换
+Test? none = enumStr.TvtpToEnum<Test>(); // None
+```
+
+#### 转float
+
+```c#
+using Tayvey.Tools;
+
+// float字符串
+var floatStr = "0.1";
+
+// 转换
+float? f = floatStr.TvtpToFloat(); // 0.1
+```
+
+#### 转decimal
+
+```c#
+using Tayvey.Tools;
+
+// decimal字符串
+var decimalStr = "0.1";
+
+// 转换
+decimal? d = decimalStr.TvtpToDecimal(); // 0.1
+```
+
+#### 转TimeSpan
+
+```c#
+using Tayvey.Tools;
+
+// TimeSpan字符串
+var timespanStr = "00:00:00";
+var timespanStr1 = "000000";
+
+// 转换
+TimeSpan? t = timespanStr.TvtpToTimeSpan(); // 00:00:00
+TimeSpan? t1 = timespanStr.TvtpToTimeSpan("HHmmss"); // 000000
+```
+
+### DateTime
+
+#### 转日期时间字符串
+
+```c#
+using Tayvey.Tools;
+
+// 日期时间
+var now = DateTime.Now;
+
+// 转换
+string? dt = now.TvtpToString(); // 2024-05-19 19:08:02
+string? dt1 = now.TvtpToString("yyyyMMddHHmmss"); // 20240519190802
+```
+
+### decimal
+
+#### 转decimal字符串
+
+```c#
+using Tayvey.Tools;
+
+// decimal
+var d = 0.100000m;
+
+// 转换
+string? dStr = d.TvtpToString(); // 0.1
+string? dStr1 = d.TvtpToString(""); // 0.100000
+```
+
+### Enum
+
+#### 转枚举项索引字符串
+
+```c#
+using Tayvey.Tools;
+
+/// <summary>
+/// 枚举对象
+/// </summary>
+public enum Test
+{
+    None = 0
+}
+
+// 枚举项
+var item = Test.None;
+
+// 转换
+string? itemStr = item.TvtpToString(); // "0"
 ```
 
 ## 加密

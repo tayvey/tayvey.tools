@@ -121,8 +121,8 @@ namespace Tayvey.Tools.TvSockets
                 Role = TvSocketRole.ServerChildClient;
                 ProtoType = socket.ProtocolType;
 
-                (ServerIpAddress, ServerPort) = ((IPEndPoint?)endPoint).TryParseToTuple();
-                (ClientIpAddress, ClientPort) = ((IPEndPoint?)socket.RemoteEndPoint).TryParseToTuple();
+                (ServerIpAddress, ServerPort) = ((IPEndPoint?)endPoint).TvtpToTuple();
+                (ClientIpAddress, ClientPort) = ((IPEndPoint?)socket.RemoteEndPoint).TvtpToTuple();
             }
             catch (Exception e)
             {
@@ -264,7 +264,7 @@ namespace Tayvey.Tools.TvSockets
             {
                 Socket.Connect(new IPEndPoint(IPAddress.Parse(serverIpAddress), serverPort));
 
-                (ClientIpAddress, ClientPort) = ((IPEndPoint?)Socket.LocalEndPoint).TryParseToTuple();
+                (ClientIpAddress, ClientPort) = ((IPEndPoint?)Socket.LocalEndPoint).TvtpToTuple();
 
                 await LoggingAsync("与服务端成功建立连接");
 
