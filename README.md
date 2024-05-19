@@ -38,7 +38,7 @@ TvConfig.InitConfiguration(file1, file2);
 
 ```json
 {
-  "TvConfig": {
+  "Custom": {
     "Str": "str",
     "List": ["str"]
   }
@@ -50,9 +50,9 @@ TvConfig.InitConfiguration(file1, file2);
 ```C#
 using Tayvey.Tools.TvConfigs;
 
-// 需要先初始化
-TvConfig.Get<string>("TvConfig:Str");
-TvConfig.Get<List<string>>("TvConfig:List");
+// 自定义配置
+TvConfig.Get<string>("Custom:Str");
+TvConfig.Get<List<string>>("Custom:List");
 ```
 
 ## Socekt 服务端/客户端
@@ -140,20 +140,23 @@ await client.StopAsync();
 ### 异步遍历
 
 ```C#
-using Tayvey.Tools.TvTasks;
-using Tayvey.Tools.TvTasks.Models;
+using Tayvey.Tools;
 
 // 列表
 var range = Enumerable.Range(0, 1000);
 
-// 异步遍历
-await range.TvForEachAsync(new TvForEachOptions<int>
+// 异步遍历 
+await range.TvForEachAsync(item =>
 {
-    TryAction = item => { }, // 处理
-    CatchAction = (item, ex) => { }, // 异常处理
-    MaxConcurrency = 20, // 最大异步数量
-    IsGroup = false // 是否分组遍历
-});
+    try
+    {
+        // 处理逻辑
+    }
+    catch (Exception)
+    {
+        // 异常处理逻辑
+    }
+}, 20, false); // 最大异步数量(默认null), 是否分组遍历(默认false)
 ```
 
 ## 数据转换
@@ -182,3 +185,51 @@ var str = "tayvey.tools";
 str = str.MD5Encryption(false);
 ```
 
+## 自动依赖注入
+
+### 初始化
+
+服务接口
+
+```C#
+using Tayvey.Tools.TvAutoDIs.Attrs;
+using Tayvey.Tools.TvAutoDIs.Enums;
+
+/// <summary>
+/// lifeCycle: 生命周期(默认Scoped), ignoreInterface: 忽略接口(默认false)
+/// </summary>
+[TvAutoDI(lifeCycle: TvAutoDILifeCycle.Scoped, ignoreInterface: false)]
+public class Test : ITest
+{
+    void ITest.Print()
+    {
+        Console.WriteLine("Test");
+    }
+}
+
+public interface ITest
+{
+    void Print();
+}
+```
+
+WebApi初始化
+
+```C#
+using Tayvey.Tools.TvAutoDIs;
+
+var builder = WebApplication.CreateBuilder(args);
+
+var service = builder.Services;
+service.AddTvAutoDI();
+```
+
+自定义初始化
+
+```C#
+using Tayvey.Tools.TvAutoDIs;
+
+TvAutoDI.Init();
+var iTest = TvAutoDI.Get<ITest>();
+iTest?.Print();
+```

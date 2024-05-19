@@ -31,73 +31,41 @@ namespace Tayvey.Tools.TvSockets.Models
         /// </summary>
         public ushort? ServerPort { get; }
 
-#if NET6_0_OR_GREATER
         /// <summary>
         /// 客户端IP地址
         /// </summary>
+#if NET6_0_OR_GREATER
         public string? ClientIpAddress { get; init; }
+#elif NETSTANDARD2_1
+        public string? ClientIpAddress { get; }
+#endif
 
         /// <summary>
         /// 客户端端口号
         /// </summary>
+#if NET6_0_OR_GREATER
         public ushort? ClientPort { get; init; }
+#elif NETSTANDARD2_1
+        public ushort? ClientPort { get; }
+#endif
 
         /// <summary>
         /// 异常
         /// </summary>
+#if NET6_0_OR_GREATER
         public Exception? Ex { get; init; }
 #elif NETSTANDARD2_1
-        /// <summary>
-        /// 客户端IP地址
-        /// </summary>
-        public string? ClientIpAddress { get; }
-
-        /// <summary>
-        /// 客户端端口号
-        /// </summary>
-        public ushort? ClientPort { get; }
-
-        /// <summary>
-        /// 异常
-        /// </summary>
         public Exception? Ex { get; }
 #endif
 
+        /// <summary>
+        /// 服务端日志初始化构造
+        /// </summary>
+        /// <param name="text">日志内容</param>
+        /// <param name="server">服务端</param>
 #if NET6_0_OR_GREATER
-        /// <summary>
-        /// 服务端日志初始化构造
-        /// </summary>
-        /// <param name="text">日志内容</param>
-        /// <param name="server">服务端</param>
         public TvSocketLog(string text, TvSocketServer server)
-        {
-            Text = text;
-            ProtoType = server.ProtoType;
-            ServerIpAddress = server.ServerIpAddress;
-            ServerPort = server.ServerPort;
-        }
-
-        /// <summary>
-        /// 客户端日志初始化构造
-        /// </summary>
-        /// <param name="text">日志内容</param>
-        /// <param name="client">客户端</param>
-        /// <param name="ex">异常</param>
-        public TvSocketLog(string text, TvSocketClient client)
-        {
-            Text = text;
-            ProtoType = client.ProtoType;
-            ServerIpAddress = client.ServerIpAddress;
-            ServerPort = client.ServerPort;
-            ClientIpAddress = client.ClientIpAddress;
-            ClientPort = client.ClientPort;
-        }
 #elif NETSTANDARD2_1
-        /// <summary>
-        /// 服务端日志初始化构造
-        /// </summary>
-        /// <param name="text">日志内容</param>
-        /// <param name="server">服务端</param>
         /// <param name="clientIpAddress">客户端IP地址</param>
         /// <param name="clientPort">客户端端口号</param>
         /// <param name="ex">异常</param>
@@ -108,14 +76,19 @@ namespace Tayvey.Tools.TvSockets.Models
             ushort? clientPort = null,
             Exception? ex = null
         )
+#endif
         {
             Text = text;
             ProtoType = server.ProtoType;
             ServerIpAddress = server.ServerIpAddress;
             ServerPort = server.ServerPort;
+
+#if NET6_0_OR_GREATER
+#elif NETSTANDARD2_1
             ClientIpAddress = clientIpAddress;
             ClientPort = clientPort;
             Ex = ex;
+#endif
         }
 
         /// <summary>
@@ -123,8 +96,12 @@ namespace Tayvey.Tools.TvSockets.Models
         /// </summary>
         /// <param name="text">日志内容</param>
         /// <param name="client">客户端</param>
+#if NET6_0_OR_GREATER
+        public TvSocketLog(string text, TvSocketClient client)
+#elif NETSTANDARD2_1
         /// <param name="ex">异常</param>
         public TvSocketLog(string text, TvSocketClient client, Exception? ex = null)
+#endif
         {
             Text = text;
             ProtoType = client.ProtoType;
@@ -132,8 +109,11 @@ namespace Tayvey.Tools.TvSockets.Models
             ServerPort = client.ServerPort;
             ClientIpAddress = client.ClientIpAddress;
             ClientPort = client.ClientPort;
+
+#if NET6_0_OR_GREATER
+#elif NETSTANDARD2_1
             Ex = ex;
-        }
 #endif
+        }
     }
 }

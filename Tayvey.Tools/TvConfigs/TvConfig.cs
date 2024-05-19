@@ -4,6 +4,8 @@ using System;
 using Microsoft.Extensions.Configuration;
 #endif
 
+using Tayvey.Tools.TvConfigs.Models;
+
 namespace Tayvey.Tools.TvConfigs
 {
     /// <summary>
@@ -15,6 +17,15 @@ namespace Tayvey.Tools.TvConfigs
         /// 配置对象
         /// </summary>
         private static IConfiguration? Configuration { get; set; }
+
+        /// <summary>
+        /// Tv配置
+        /// </summary>
+#if NET6_0_OR_GREATER
+        internal static TvConfigOptions Options { get; private set; } = new();
+#elif NETSTANDARD2_1
+        internal static TvConfigOptions Options { get; private set; } = new TvConfigOptions();
+#endif
 
         /// <summary>
         /// 初始化锁
@@ -36,6 +47,7 @@ namespace Tayvey.Tools.TvConfigs
                 if (Configuration == null && configuration != null)
                 {
                     Configuration = configuration;
+                    Options = Get<TvConfigOptions?>("TvConfig") ?? new TvConfigOptions();
                 }
             }
         }
@@ -58,6 +70,7 @@ namespace Tayvey.Tools.TvConfigs
                     }
 
                     Configuration = configBuilder.Build();
+                    Options = Get<TvConfigOptions?>("TvConfig") ?? new TvConfigOptions();
                 }
             }
         }
