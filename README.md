@@ -373,3 +373,31 @@ TvAutoDI.Init();
 var iTest = TvAutoDI.Get<ITest>();
 iTest?.Print();
 ```
+
+## Excel
+
+### 读取Excel
+
+```c#
+using Tayvey.Tools.TvExcels;
+
+// excel文件
+var path = Path.Combine(@"C:\Users\administrator\Desktop\test.xlsx");
+using var fs = new FileStream(path, FileMode.Open, FileAccess.Read);
+
+// 读取
+var cells = await TvExcel.ReadAsync(fs);
+
+// 筛选工作表 (1开始)
+var cellsPq = cells.AsParallel().Where(i => i.Worksheet == 1);
+
+// 筛选行 (1开始)
+cellsPq = cellsPq.Where(i => i.Row == 4);
+
+// 筛选列 (1开始)
+var cell = cellsPq.FirstOrDefault(i => i.Col == 1);
+
+// 读取值
+var value = cell?.Value;
+```
+
