@@ -1,5 +1,81 @@
 # Tayvey.Tools
 
+## Api返回
+
+WebApi返回
+
+```c#
+using Tayvey.Tools.TvApiResults.Models;
+
+[HttpGet]
+public IActionResult Get()
+{
+    // 返回成功 - 返回消息, 返回数据
+    return TvApiResult.Ok("成功", new { });
+
+    // 返回失败
+    return TvApiResult.Fail("失败", new { });
+
+    // 返回鉴权失败
+    return TvApiResult.Unauthorized("鉴权失败", new { });
+
+    // 返回资源不存在
+    return TvApiResult.NotFound("资源不存在", new { });
+
+    // 返回异常
+    return TvApiResult.Error("异常", new { });
+}
+```
+
+## 自动依赖注入
+
+### 初始化
+
+服务接口
+
+```C#
+using Tayvey.Tools.TvAutoDIs.Attrs;
+using Tayvey.Tools.TvAutoDIs.Enums;
+
+/// <summary>
+/// lifeCycle: 生命周期(默认Scoped), ignoreInterface: 忽略接口(默认false)
+/// </summary>
+[TvAutoDI(lifeCycle: TvAutoDILifeCycle.Scoped, ignoreInterface: false)]
+public class Test : ITest
+{
+    void ITest.Print()
+    {
+        Console.WriteLine("Test");
+    }
+}
+
+public interface ITest
+{
+    void Print();
+}
+```
+
+WebApi初始化
+
+```C#
+using Tayvey.Tools.TvAutoDIs;
+
+var builder = WebApplication.CreateBuilder(args);
+
+var service = builder.Services;
+service.AddTvAutoDI();
+```
+
+自定义初始化
+
+```C#
+using Tayvey.Tools.TvAutoDIs;
+
+TvAutoDI.Init();
+var iTest = TvAutoDI.Get<ITest>();
+iTest?.Print();
+```
+
 ## 配置
 
 ### 初始化
@@ -53,6 +129,33 @@ using Tayvey.Tools.TvConfigs;
 // 自定义配置
 TvConfig.Get<string>("Custom:Str");
 TvConfig.Get<List<string>>("Custom:List");
+```
+
+## Excel
+
+### 读取Excel
+
+```c#
+using Tayvey.Tools.TvExcels;
+
+// excel文件
+var path = Path.Combine(@"C:\Users\administrator\Desktop\test.xlsx");
+using var fs = new FileStream(path, FileMode.Open, FileAccess.Read);
+
+// 读取
+var cells = await TvExcel.ReadAsync(fs);
+
+// 筛选工作表 (1开始)
+var cellsPq = cells.AsParallel().Where(i => i.Worksheet == 1);
+
+// 筛选行 (1开始)
+cellsPq = cellsPq.Where(i => i.Row == 4);
+
+// 筛选列 (1开始)
+var cell = cellsPq.FirstOrDefault(i => i.Col == 1);
+
+// 读取值
+var value = cell?.Value;
 ```
 
 ## Socekt 服务端/客户端
@@ -133,30 +236,6 @@ else
 
 // 停止客户端
 await client.StopAsync();
-```
-
-## 异步
-
-### 异步遍历
-
-```C#
-using Tayvey.Tools;
-
-// 列表
-var range = Enumerable.Range(0, 1000);
-
-// 异步遍历 
-await range.TvForEachAsync(item =>
-{
-    try
-    {
-        // 处理逻辑
-    }
-    catch (Exception)
-    {
-        // 异常处理逻辑
-    }
-}, 20, false); // 最大异步数量(默认null), 是否分组遍历(默认false)
 ```
 
 ## 数据转换
@@ -325,79 +404,26 @@ var str = "tayvey.tools";
 str = str.MD5Encryption(false);
 ```
 
-## 自动依赖注入
+## 异步
 
-### 初始化
-
-服务接口
+### 异步遍历
 
 ```C#
-using Tayvey.Tools.TvAutoDIs.Attrs;
-using Tayvey.Tools.TvAutoDIs.Enums;
+using Tayvey.Tools;
 
-/// <summary>
-/// lifeCycle: 生命周期(默认Scoped), ignoreInterface: 忽略接口(默认false)
-/// </summary>
-[TvAutoDI(lifeCycle: TvAutoDILifeCycle.Scoped, ignoreInterface: false)]
-public class Test : ITest
+// 列表
+var range = Enumerable.Range(0, 1000);
+
+// 异步遍历 
+await range.TvForEachAsync(item =>
 {
-    void ITest.Print()
+    try
     {
-        Console.WriteLine("Test");
+        // 处理逻辑
     }
-}
-
-public interface ITest
-{
-    void Print();
-}
+    catch (Exception)
+    {
+        // 异常处理逻辑
+    }
+}, 20, false); // 最大异步数量(默认null), 是否分组遍历(默认false)
 ```
-
-WebApi初始化
-
-```C#
-using Tayvey.Tools.TvAutoDIs;
-
-var builder = WebApplication.CreateBuilder(args);
-
-var service = builder.Services;
-service.AddTvAutoDI();
-```
-
-自定义初始化
-
-```C#
-using Tayvey.Tools.TvAutoDIs;
-
-TvAutoDI.Init();
-var iTest = TvAutoDI.Get<ITest>();
-iTest?.Print();
-```
-
-## Excel
-
-### 读取Excel
-
-```c#
-using Tayvey.Tools.TvExcels;
-
-// excel文件
-var path = Path.Combine(@"C:\Users\administrator\Desktop\test.xlsx");
-using var fs = new FileStream(path, FileMode.Open, FileAccess.Read);
-
-// 读取
-var cells = await TvExcel.ReadAsync(fs);
-
-// 筛选工作表 (1开始)
-var cellsPq = cells.AsParallel().Where(i => i.Worksheet == 1);
-
-// 筛选行 (1开始)
-cellsPq = cellsPq.Where(i => i.Row == 4);
-
-// 筛选列 (1开始)
-var cell = cellsPq.FirstOrDefault(i => i.Col == 1);
-
-// 读取值
-var value = cell?.Value;
-```
-

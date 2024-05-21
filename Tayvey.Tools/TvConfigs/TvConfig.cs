@@ -1,10 +1,8 @@
-﻿#if NET6_0_OR_GREATER
-#elif NETSTANDARD2_1
-using System;
+﻿#if NETSTANDARD2_1
 using Microsoft.Extensions.Configuration;
-#endif
-
+using System;
 using Tayvey.Tools.TvConfigs.Models;
+#endif
 
 namespace Tayvey.Tools.TvConfigs
 {
@@ -23,7 +21,7 @@ namespace Tayvey.Tools.TvConfigs
         /// </summary>
 #if NET6_0_OR_GREATER
         internal static TvConfigOptions Options { get; private set; } = new();
-#elif NETSTANDARD2_1
+#else
         internal static TvConfigOptions Options { get; private set; } = new TvConfigOptions();
 #endif
 
@@ -32,7 +30,7 @@ namespace Tayvey.Tools.TvConfigs
         /// </summary>
 #if NET6_0_OR_GREATER
         private static readonly object InitLock = new();
-#elif NETSTANDARD2_1
+#else
         private static readonly object InitLock = new object();
 #endif
 
@@ -83,7 +81,7 @@ namespace Tayvey.Tools.TvConfigs
         /// <returns></returns>
 #if NET6_0_OR_GREATER
         public static T? Get<T>(string key)
-#elif NETSTANDARD2_1
+#else
         public static T Get<T>(string key)
 #endif
         {
@@ -92,11 +90,11 @@ namespace Tayvey.Tools.TvConfigs
                 throw new Exception("配置对象未初始化");
             }
 
-#if NETSTANDARD2_1
-#pragma warning disable CS8603 // 可能返回 null 引用。
-#endif
+#if NET6_0_OR_GREATER
             return Configuration.GetSection(key).Get<T>();
-#if NETSTANDARD2_1
+#else
+#pragma warning disable CS8603 // 可能返回 null 引用。
+            return Configuration.GetSection(key).Get<T>();
 #pragma warning restore CS8603 // 可能返回 null 引用。
 #endif
         }

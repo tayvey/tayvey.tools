@@ -10,7 +10,7 @@
         /// </summary>
 #if NET6_0_OR_GREATER
         public uint Worksheet { get; init; }
-#elif NETSTANDARD2_1
+#else
         public uint Worksheet { get; }
 #endif
 
@@ -19,7 +19,7 @@
         /// </summary>
 #if NET6_0_OR_GREATER
         public string WorksheetName { get; init; } = "";
-#elif NETSTANDARD2_1
+#else
         public string WorksheetName { get; } = "";
 #endif
 
@@ -28,7 +28,7 @@
         /// </summary>
 #if NET6_0_OR_GREATER
         public uint Row { get; init; }
-#elif NETSTANDARD2_1
+#else
         public uint Row { get; }
 #endif
 
@@ -37,7 +37,7 @@
         /// </summary>
 #if NET6_0_OR_GREATER
         public uint Col { get; init; }
-#elif NETSTANDARD2_1
+#else
         public uint Col { get; }
 #endif
 
@@ -46,12 +46,11 @@
         /// </summary>
 #if NET6_0_OR_GREATER
         public string Value { get; init; } = "";
-#elif NETSTANDARD2_1
-        public string Value { get; }
+#else
+        public string Value { get; } = "";
 #endif
 
-#if NET6_0_OR_GREATER
-#elif NETSTANDARD2_1
+#if NETSTANDARD2_1
         /// <summary>
         /// 初始化
         /// </summary>

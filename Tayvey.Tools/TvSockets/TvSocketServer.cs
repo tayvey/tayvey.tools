@@ -1,5 +1,4 @@
-﻿#if NET6_0_OR_GREATER
-#elif NETSTANDARD2_1
+﻿#if NETSTANDARD2_1
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
@@ -18,7 +17,7 @@ namespace Tayvey.Tools.TvSockets
 #if NET8_0_OR_GREATER
     /// <param name="protoType">连接协议</param>
     public class TvSocketServer(ProtocolType protoType)
-#elif NET6_0 || NETSTANDARD2_1
+#else
     public class TvSocketServer
 #endif
     {
@@ -27,7 +26,7 @@ namespace Tayvey.Tools.TvSockets
         /// </summary>
 #if NET8_0_OR_GREATER
         private Socket Socket { get; } = new Socket(AddressFamily.InterNetwork, SocketType.Stream, protoType);
-#elif NET6_0 || NETSTANDARD2_1
+#else
         private Socket Socket { get; }
 #endif
 
@@ -36,7 +35,7 @@ namespace Tayvey.Tools.TvSockets
         /// </summary>
 #if NET6_0_OR_GREATER
         private ConcurrentDictionary<string, TvSocketClient> Clients { get; } = new();
-#elif NETSTANDARD2_1
+#else
         private ConcurrentDictionary<string, TvSocketClient> Clients { get; } = new ConcurrentDictionary<string, TvSocketClient>();
 #endif
 
@@ -97,17 +96,16 @@ namespace Tayvey.Tools.TvSockets
         /// </summary>
         public Func<TvSocketReceive, Task<string>>? ReceiveCallBack { get; set; }
 
-#if NET8_0_OR_GREATER
-#elif NET6_0 || NETSTANDARD2_1
-        /// <summary>
-        /// 服务端初始化构造
-        /// </summary>
-        /// <param name="protoType">连接协议</param>
-        public TvSocketServer(ProtocolType protoType)
-        {
-            Socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, protoType);
-            ProtoType = protoType;
-        }
+#if NET6_0 || NETSTANDARD2_1
+    /// <summary>
+    /// 服务端初始化构造
+    /// </summary>
+    /// <param name="protoType">连接协议</param>
+    public TvSocketServer(ProtocolType protoType)
+    {
+        Socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, protoType);
+        ProtoType = protoType;
+    }
 #endif
 
         /// <summary>
@@ -242,7 +240,7 @@ namespace Tayvey.Tools.TvSockets
                         ClientPort = clientPort,
                         Ex = e
                     });
-#elif NETSTANDARD2_1
+#else
                     await CustomLogging(new TvSocketLog(text, this, clientIpAddress, clientPort, e));
 #endif
                 }

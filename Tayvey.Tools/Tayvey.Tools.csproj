@@ -3,19 +3,23 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.1;net6.0;net8.0</TargetFrameworks>
     <Nullable>enable</Nullable>
+	<OpenApiGenerateDocuments>false</OpenApiGenerateDocuments>
   </PropertyGroup>
 
-	<PropertyGroup Condition=" '$(TargetFramework)' == 'net6.0' or '$(TargetFramework)' == 'net8.0' ">
-		<ImplicitUsings>enable</ImplicitUsings>
-	</PropertyGroup>
-
+  <PropertyGroup Condition=" '$(TargetFramework)' != 'netstandard2.1' ">
+	<ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+	
   <ItemGroup>
     <PackageReference Include="EPPlus" Version="7.1.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.1" />
   </ItemGroup>
 
 </Project>

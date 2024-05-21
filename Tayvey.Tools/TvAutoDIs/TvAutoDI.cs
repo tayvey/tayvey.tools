@@ -1,5 +1,4 @@
-﻿#if NET6_0_OR_GREATER
-#elif NETSTANDARD2_1
+﻿#if NETSTANDARD2_1
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -26,7 +25,7 @@ namespace Tayvey.Tools.TvAutoDIs
         /// </summary>
 #if NET6_0_OR_GREATER
         private static readonly object InitLock = new();
-#elif NETSTANDARD2_1
+#else
         private static readonly object InitLock = new object();
 #endif
 
@@ -126,7 +125,7 @@ namespace Tayvey.Tools.TvAutoDIs
 
                 return (type, interfaces, type.GetCustomAttribute<TvAutoDIAttribute>()!);
             }).AsParallel();
-            
+
             return classPq;
         }
 
@@ -210,7 +209,7 @@ namespace Tayvey.Tools.TvAutoDIs
         /// <returns></returns>
 #if NET6_0_OR_GREATER
         public static T? Get<T>() where T : notnull
-#elif NETSTANDARD2_1
+#else
         public static T Get<T>() where T : notnull
 #endif
         {
@@ -218,7 +217,7 @@ namespace Tayvey.Tools.TvAutoDIs
             {
 #if NET6_0_OR_GREATER
                 return default;
-#elif NETSTANDARD2_1
+#else
 #pragma warning disable CS8603 // 可能返回 null 引用。
                 return default;
 #pragma warning restore CS8603 // 可能返回 null 引用。

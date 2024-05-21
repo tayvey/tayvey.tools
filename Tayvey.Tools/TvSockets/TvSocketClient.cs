@@ -1,5 +1,4 @@
-﻿#if NET6_0_OR_GREATER
-#elif NETSTANDARD2_1
+﻿#if NETSTANDARD2_1
 using System;
 using System.Net;
 using System.Net.Sockets;
@@ -238,7 +237,7 @@ namespace Tayvey.Tools.TvSockets
                     {
                         Ex = e
                     });
-#elif NETSTANDARD2_1
+#else
                     await CustomLogging(new TvSocketLog(text, this, e));
 #endif
                 }

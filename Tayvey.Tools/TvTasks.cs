@@ -1,10 +1,9 @@
-﻿#if NET6_0_OR_GREATER
-#elif NETSTANDARD2_1
-using System;
+﻿#if NETSTANDARD2_1
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
+using System.Threading;
+using System;
+using System.Linq;
 #endif
 
 namespace Tayvey.Tools

@@ -1,5 +1,4 @@
-﻿#if NET6_0_OR_GREATER
-#elif NETSTANDARD2_1
+﻿#if NETSTANDARD2_1
 using System;
 using Tayvey.Tools.TvAutoDIs.Enums;
 #endif

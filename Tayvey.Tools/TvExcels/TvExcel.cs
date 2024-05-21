@@ -1,5 +1,4 @@
-﻿#if NET6_0_OR_GREATER
-#elif NETSTANDARD2_1
+﻿#if NETSTANDARD2_1
 using OfficeOpenXml;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -59,23 +58,23 @@ namespace Tayvey.Tools.TvExcels
                             Col = (uint)col,
                             Value = value
                         });
-#elif NETSTANDARD2_1
+#else
                         cells.Add(new TvExcelCell((uint)worksheet.Index + 1, worksheet.Name, (uint)row, (uint)col, value));
 #endif
                     });
                 }
 
 #if NET8_0_OR_GREATER
-                return [.. cells];
-#elif NET6_0_OR_GREATER || NETSTANDARD2_1
+            return [.. cells];
+#else
                 return cells.ToList();
 #endif
             }
             catch
             {
 #if NET8_0_OR_GREATER
-                return [];
-#elif NET6_0_OR_GREATER || NETSTANDARD2_1
+            return [];
+#else
                 return new List<TvExcelCell>();
 #endif
             }

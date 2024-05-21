@@ -1,5 +1,4 @@
-﻿#if NET6_0_OR_GREATER
-#elif NETSTANDARD2_1
+﻿#if NETSTANDARD2_1
 using System.Security.Cryptography;
 using System.Text;
 #endif
@@ -23,7 +22,7 @@ namespace Tayvey.Tools
 
 #if NET6_0_OR_GREATER
             var hashBytes = MD5.HashData(inputBytes);
-#elif NETSTANDARD2_1
+#else
             using MD5 md5 = MD5.Create();
             var hashBytes = md5.ComputeHash(inputBytes);
 #endif

@@ -1,7 +1,6 @@
-﻿#if NET6_0_OR_GREATER
-#elif NETSTANDARD2_1
-using System;
+﻿#if NETSTANDARD2_1
 using System.Net;
+using System;
 #endif
 
 namespace Tayvey.Tools
@@ -85,7 +84,7 @@ namespace Tayvey.Tools
         {
 #if NET6_0_OR_GREATER
             if (Enum.TryParse<T>(str?.Trim(), out var value) && Enum.IsDefined(value))
-#elif NETSTANDARD2_1
+#else
             if (Enum.TryParse<T>(str?.Trim(), out var value) && Enum.IsDefined(typeof(T), value))
 #endif
             {

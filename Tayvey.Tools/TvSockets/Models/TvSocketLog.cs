@@ -1,7 +1,6 @@
-﻿#if NET6_0_OR_GREATER
-#elif NETSTANDARD2_1
-using System;
+﻿#if NETSTANDARD2_1
 using System.Net.Sockets;
+using System;
 #endif
 
 namespace Tayvey.Tools.TvSockets.Models
@@ -36,7 +35,7 @@ namespace Tayvey.Tools.TvSockets.Models
         /// </summary>
 #if NET6_0_OR_GREATER
         public string? ClientIpAddress { get; init; }
-#elif NETSTANDARD2_1
+#else
         public string? ClientIpAddress { get; }
 #endif
 
@@ -45,7 +44,7 @@ namespace Tayvey.Tools.TvSockets.Models
         /// </summary>
 #if NET6_0_OR_GREATER
         public ushort? ClientPort { get; init; }
-#elif NETSTANDARD2_1
+#else
         public ushort? ClientPort { get; }
 #endif
 
@@ -54,7 +53,7 @@ namespace Tayvey.Tools.TvSockets.Models
         /// </summary>
 #if NET6_0_OR_GREATER
         public Exception? Ex { get; init; }
-#elif NETSTANDARD2_1
+#else
         public Exception? Ex { get; }
 #endif
 
@@ -65,7 +64,7 @@ namespace Tayvey.Tools.TvSockets.Models
         /// <param name="server">服务端</param>
 #if NET6_0_OR_GREATER
         public TvSocketLog(string text, TvSocketServer server)
-#elif NETSTANDARD2_1
+#else
         /// <param name="clientIpAddress">客户端IP地址</param>
         /// <param name="clientPort">客户端端口号</param>
         /// <param name="ex">异常</param>
@@ -83,8 +82,7 @@ namespace Tayvey.Tools.TvSockets.Models
             ServerIpAddress = server.ServerIpAddress;
             ServerPort = server.ServerPort;
 
-#if NET6_0_OR_GREATER
-#elif NETSTANDARD2_1
+#if NETSTANDARD2_1
             ClientIpAddress = clientIpAddress;
             ClientPort = clientPort;
             Ex = ex;
@@ -98,7 +96,7 @@ namespace Tayvey.Tools.TvSockets.Models
         /// <param name="client">客户端</param>
 #if NET6_0_OR_GREATER
         public TvSocketLog(string text, TvSocketClient client)
-#elif NETSTANDARD2_1
+#else
         /// <param name="ex">异常</param>
         public TvSocketLog(string text, TvSocketClient client, Exception? ex = null)
 #endif
@@ -110,8 +108,7 @@ namespace Tayvey.Tools.TvSockets.Models
             ClientIpAddress = client.ClientIpAddress;
             ClientPort = client.ClientPort;
 
-#if NET6_0_OR_GREATER
-#elif NETSTANDARD2_1
+#if NETSTANDARD2_1
             Ex = ex;
 #endif
         }
