@@ -9,6 +9,7 @@ global using System.Security.Cryptography;
 global using System.Text;
 
 // NUGET
+global using Microsoft.AspNetCore.Builder;
 global using Microsoft.AspNetCore.Http;
 global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.Extensions.Configuration;
@@ -19,6 +20,7 @@ global using OfficeOpenXml;
 
 // 项目
 global using Tayvey.Tools.TvApiResults.Enums;
+global using Tayvey.Tools.TvApiResults.Models;
 global using Tayvey.Tools.TvAutoDIs.Attrs;
 global using Tayvey.Tools.TvAutoDIs.Enums;
 global using Tayvey.Tools.TvConfigs.Models;

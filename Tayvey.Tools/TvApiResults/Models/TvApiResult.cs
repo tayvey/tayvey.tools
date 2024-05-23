@@ -3,7 +3,6 @@ using Tayvey.Tools.TvApiResults.Enums;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 #endif
@@ -104,6 +103,23 @@ namespace Tayvey.Tools.TvApiResults.Models
         };
 
         /// <summary>
+        /// 方法不被允许
+        /// </summary>
+        /// <param name="message">返回消息</param>
+        /// <param name="data">返回数据</param>
+        /// <returns></returns>
+#if NET6_0_OR_GREATER
+        public static TvApiResult MethodNotAllowed(string? message = null, object? data = null) => new()
+#else
+        public static TvApiResult MethodNotAllowed(string? message = null, object? data = null) => new TvApiResult
+#endif
+        {
+            StatusCode = TvApiStatus.MethodNotAllowed,
+            Message = message,
+            Data = data
+        };
+
+        /// <summary>
         /// 异常
         /// </summary>
         /// <param name="message">返回消息</param>
@@ -132,8 +148,10 @@ namespace Tayvey.Tools.TvApiResults.Models
 
 #if NET6_0_OR_GREATER
             response.Headers.Server = "";
+            response.Headers.Append("Tv-Api-Result", "true");
 #else
             response.Headers["Server"] = "";
+            response.Headers["Tv-Api-Result"] = "true";
 #endif
 
             response.StatusCode = StatusCode.GetHashCode();

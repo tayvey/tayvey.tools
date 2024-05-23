@@ -21,6 +21,9 @@ public IActionResult Get()
 
     // 返回资源不存在
     return TvApiResult.NotFound("资源不存在", new { });
+    
+    // 返回方法不被允许
+    return TvApiResult.MethodNotAllowed("方法不被允许", new { });
 
     // 返回异常
     return TvApiResult.Error("异常", new { });
@@ -156,6 +159,29 @@ var cell = cellsPq.FirstOrDefault(i => i.Col == 1);
 
 // 读取值
 var value = cell?.Value;
+```
+
+## Tv异常
+
+### HTTP状态码异常处理中间件
+
+```c#
+using Tayvey.Tools.TvExceptions.Middlewares;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// service
+var service = builder.Services;
+service.AddControllers();
+
+// app
+var app = builder.Build();
+
+// HTTP状态码异常处理 404/405
+app.UseTvExHttpStatusCode();
+
+app.MapControllers();
+app.Run();
 ```
 
 ## Socekt 服务端/客户端

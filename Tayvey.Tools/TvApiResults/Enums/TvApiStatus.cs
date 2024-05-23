@@ -26,6 +26,11 @@
         NotFound = 404,
 
         /// <summary>
+        /// 方法不被允许
+        /// </summary>
+        MethodNotAllowed = 405,
+
+        /// <summary>
         /// 异常
         /// </summary>
         Error = 500
