@@ -26,11 +26,6 @@ namespace Tayvey.Tools.TvSockets.Models
         public byte[] Data => Client.ReceiveBuffer;
 
         /// <summary>
-        /// 接收数据字符串
-        /// </summary>
-        public string DataStr { get; }
-
-        /// <summary>
         /// 粘包字符串
         /// </summary>
         public string DipBag => Client.DipBag;
@@ -53,7 +48,31 @@ namespace Tayvey.Tools.TvSockets.Models
         {
             Client = client;
             Length = length;
-            DataStr = Encoding.UTF8.GetString(Data, 0, (int)Length);
+        }
+
+        /// <summary>
+        /// 初始化构造
+        /// </summary>
+        /// <param name="client">客户端</param>
+        public TvSocketReceive(TvSocketClient client)
+        {
+            Client = client;
+            Length = (uint)client.ReceiveBuffer.Length;
+        }
+
+        /// <summary>
+        /// 读取接收数据字符串
+        /// </summary>
+        /// <param name="encoding">读取编码, 默认UTF8</param>
+        /// <returns></returns>
+        public string GetDataStr(Encoding? encoding = null)
+        {
+            if (encoding == null)
+            {
+                return Encoding.UTF8.GetString(Data, 0, (int)Length);
+            }
+
+            return encoding.GetString(Data, 0, (int)Length);
         }
     }
 }

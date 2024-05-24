@@ -163,7 +163,9 @@ var value = cell?.Value;
 
 ## Tv异常
 
-### HTTP状态码异常处理中间件
+### 中间件
+
+#### HTTP状态码异常处理中间件
 
 ```c#
 using Tayvey.Tools.TvExceptions.Middlewares;
@@ -179,6 +181,30 @@ var app = builder.Build();
 
 // HTTP状态码异常处理 404/405
 app.UseTvExHttpStatusCode();
+
+app.MapControllers();
+app.Run();
+```
+
+#### WebApi全局异常处理中间件
+
+```C#
+using Tayvey.Tools.TvExceptions.Middlewares;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// service
+var service = builder.Services;
+service.AddControllers();
+
+// app
+var app = builder.Build();
+
+// 全局异常处理
+app.UseTvExWebApiGlobalEx(e =>
+{
+    Console.WriteLine($"未知异常 {e.Message} {e.StackTrace}");
+});
 
 app.MapControllers();
 app.Run();
