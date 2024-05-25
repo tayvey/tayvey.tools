@@ -36,7 +36,7 @@ namespace Tayvey.Tools.TvAutoDIs
         public static void AddTvAutoDI(this IServiceCollection service)
         {
             // 获取程序集列表
-            var assembliesPq = GetAssemblies();
+            var assembliesPq = GetAssemblies().AsParallel();
 
             // 获取自动依赖注入的类
             var classPq = assembliesPq.Select(GetAutoDIClass).SelectMany(item => item);
@@ -61,7 +61,7 @@ namespace Tayvey.Tools.TvAutoDIs
         /// 获取程序集列表
         /// </summary>
         /// <returns></returns>
-        private static ParallelQuery<Assembly> GetAssemblies()
+        internal static List<Assembly> GetAssemblies()
         {
             // 获取入口程序集
             var entry = Assembly.GetEntryAssembly();
@@ -92,7 +92,7 @@ namespace Tayvey.Tools.TvAutoDIs
                 return raPq.Any(ra => ra.FullName == tvDll.FullName);
             });
 
-            return assembliesPq;
+            return assembliesPq.ToList();
         }
 
         /// <summary>

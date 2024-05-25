@@ -161,7 +161,7 @@ var cell = cellsPq.FirstOrDefault(i => i.Col == 1);
 var value = cell?.Value;
 ```
 
-## Tv异常
+## 异常
 
 ### 中间件
 
@@ -205,6 +205,27 @@ app.UseTvExWebApiGlobalEx(e =>
 {
     Console.WriteLine($"未知异常 {e.Message} {e.StackTrace}");
 });
+
+app.MapControllers();
+app.Run();
+```
+
+#### WebApi模型验证异常处理
+
+```c#
+using Tayvey.Tools.TvExceptions;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// service
+var service = builder.Services;
+service.AddControllers();
+
+// TvAPI模型验证异常处理
+service.AddTvExWebApiModelState();
+
+// app
+var app = builder.Build();
 
 app.MapControllers();
 app.Run();
@@ -288,6 +309,57 @@ else
 
 // 停止客户端
 await client.StopAsync();
+```
+
+## Swagger
+
+### Swagger配置
+
+```json
+"TvConfig": {
+  "TvSwagger": {
+    "Name": "测试Swagger", // 默认swagger
+    "Version": "测试 - 1.0", // 默认1.0
+    "Headers": [ // 默认[]
+      {
+        "Key": "Tv-Test1", // 请求头KEY
+        "Desc": "..." // 请求头说明
+      },
+      {
+        "Key": "Tv-Test2",
+        "Desc": "..."
+      }
+    ]
+  }
+}
+```
+
+### 应用Swagger
+
+```C#
+using Tayvey.Tools.TvConfigs;
+using Tayvey.Tools.TvSwaggers;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// 初始化Tv配置 (读取swagger配置需要使用)
+TvConfig.InitConfiguration(builder.Configuration);
+
+// service
+var service = builder.Services;
+service.AddControllers();
+
+// TvSwagger
+service.AddTvSwagger();
+
+// app
+var app = builder.Build();
+
+// TvSwagger
+app.UseTvSwagger();
+
+app.MapControllers();
+app.Run();
 ```
 
 ## 数据转换

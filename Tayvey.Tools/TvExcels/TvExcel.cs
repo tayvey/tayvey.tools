@@ -25,7 +25,7 @@ namespace Tayvey.Tools.TvExcels
         {
             try
             {
-                ExcelPackage.LicenseContext = LicenseContext.NonCommercial; // EPPlus非商业用途
+                ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial; // EPPlus非商业用途
                 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance); // 注册字符编码
                 using var package = new ExcelPackage(stream); // 流读取Excel
 

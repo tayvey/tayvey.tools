@@ -15,17 +15,23 @@ global using Microsoft.AspNetCore.Http;
 global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.Extensions.Configuration;
 global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.OpenApi.Models;
 global using Newtonsoft.Json;
 global using Newtonsoft.Json.Serialization;
 global using OfficeOpenXml;
+global using Swashbuckle.AspNetCore.SwaggerGen;
+global using System.ComponentModel;
 
 // 项目
 global using Tayvey.Tools.TvApiResults.Enums;
 global using Tayvey.Tools.TvApiResults.Models;
+global using Tayvey.Tools.TvAutoDIs;
 global using Tayvey.Tools.TvAutoDIs.Attrs;
 global using Tayvey.Tools.TvAutoDIs.Enums;
+global using Tayvey.Tools.TvConfigs;
 global using Tayvey.Tools.TvConfigs.Models;
 global using Tayvey.Tools.TvExcels.Models;
 global using Tayvey.Tools.TvSockets.Enums;
 global using Tayvey.Tools.TvSockets.Models;
+global using Tayvey.Tools.TvSwaggers.Models;
 #endif
