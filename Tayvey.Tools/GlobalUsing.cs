@@ -8,6 +8,7 @@ global using System.Reflection;
 global using System.Runtime.InteropServices;
 global using System.Security.Cryptography;
 global using System.Text;
+global using System.Text.Json.Serialization;
 
 // NUGET
 global using Microsoft.AspNetCore.Builder;
@@ -16,6 +17,9 @@ global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.Extensions.Configuration;
 global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.OpenApi.Models;
+global using MongoDB.Bson;
+global using MongoDB.Bson.Serialization.Attributes;
+global using MongoDB.Driver;
 global using Newtonsoft.Json;
 global using Newtonsoft.Json.Serialization;
 global using OfficeOpenXml;
@@ -31,6 +35,8 @@ global using Tayvey.Tools.TvAutoDIs.Enums;
 global using Tayvey.Tools.TvConfigs;
 global using Tayvey.Tools.TvConfigs.Models;
 global using Tayvey.Tools.TvExcels.Models;
+global using Tayvey.Tools.TvMongos.Attrs;
+global using Tayvey.Tools.TvMongos.Models;
 global using Tayvey.Tools.TvSockets.Enums;
 global using Tayvey.Tools.TvSockets.Models;
 global using Tayvey.Tools.TvSwaggers.Models;

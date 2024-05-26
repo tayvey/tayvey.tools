@@ -231,6 +231,72 @@ app.MapControllers();
 app.Run();
 ```
 
+## MongoDB
+
+### 配置
+
+```json
+"TvConfig": {
+  "TvMongo": [
+    {
+      "Key": "test",
+      "ConnectionStr": "mongodb://username:password@host:port/?readPreference=secondaryPreferred"
+    }
+  ]
+}
+```
+
+### 获取集合
+
+#### 实体
+
+```c#
+using Tayvey.Tools.TvMongos;
+using Tayvey.Tools.TvMongos.Attrs;
+using Tayvey.Tools.TvMongos.Models;
+
+[TvMongo("Test")]
+internal class Test : TvMongoDataBase
+{
+}
+
+/*
+    获取集合
+    <T>: 实体对象, 必须继承TvMongoDataBase抽象类
+    dbName: 指定数据库
+    collectionName: 指定集合 (可省略)
+        如果传入, 则以传入的collectionName为准
+        如果省略, 则以实体特性TvMongo中指定的为准
+        如果省略且未使用实体特性TvMongo指定, 则以实体名称为准
+    key: 指定连接KEY (可省略)
+        如果传入, 则以传入的key为准
+        如果省略, 则默认配置中的第一个key
+ */
+var collection = TvMongo.GetCollection<Test>("dbName", "collectionName", "test");
+
+// 查询数据
+var data = await collection.Find(i => i.Id == ObjectId.Empty).ToListAsync();
+```
+
+#### Bson
+
+```C#
+using Tayvey.Tools.TvMongos;
+
+/*
+    获取集合
+    dbName: 指定数据库
+    collectionName: 指定集合
+    key: 指定连接KEY (可省略)
+        如果传入, 则以传入的key为准
+        如果省略, 则默认配置中的第一个key
+ */
+var collection = TvMongo.GetCollection("dbName", "collectionName", "test");
+
+// 查询数据
+var data = await collection.Find(i => i["_id"] == ObjectId.Empty).ToListAsync();
+```
+
 ## Socekt 服务端/客户端
 
 ### 启动&停止服务端
@@ -521,6 +587,8 @@ string? itemStr = item.TvtpToString(); // "0"
 ### MD5 32位
 
 ```c#
+using Tayvey.Tools;
+
 // 明文
 var str = "tayvey.tools";
 
