@@ -53,13 +53,13 @@ namespace Tayvey.Tools.TvMongos
             var hsKeys = mongoConfigPq.Select(i => i.Key).ToHashSet();
             if (allKeys.Count != hsKeys.Count)
             {
-                throw new Exception("配置KEY重复");
+                throw new Exception("配置Key重复");
             }
 
-            // 检查有没有空KEY
+            // 检查有没有空Key
             if (hsKeys.Any(string.IsNullOrWhiteSpace))
             {
-                throw new Exception("配置KEY为空");
+                throw new Exception("配置Key为空");
             }
 
             // 创建连接
@@ -91,16 +91,16 @@ namespace Tayvey.Tools.TvMongos
         /// <typeparam name="T"></typeparam>
         /// <param name="dbName">数据库名称</param>
         /// <param name="collectionName">集合名称</param>
-        /// <param name="key">连接KEY</param>
+        /// <param name="key">配置Key</param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
         public static IMongoCollection<T> GetCollection<T>(string dbName, string collectionName = "", string key = "")
             where T : TvMongoDataBase
         {
-            // 无数据库连接异常
+            // 无服务异常
             if (ClientDict.Value.Count == 0)
             {
-                throw new Exception("未连接到任何MongoDB数据库");
+                throw new Exception("未连接到任何MongoDB服务");
             }
 
             // 获取特性
@@ -117,7 +117,7 @@ namespace Tayvey.Tools.TvMongos
                 _ => typeof(T).Name
             };
 
-            // 如果KEY为空, 默认获取第一个连接
+            // 如果Key为空, 默认获取第一个连接
             if (string.IsNullOrWhiteSpace(key))
             {
                 return ClientDict.Value.First().Value.GetDatabase(dbName).GetCollection<T>(collectionName);
@@ -131,18 +131,18 @@ namespace Tayvey.Tools.TvMongos
         /// </summary>
         /// <param name="dbName">数据库名称</param>
         /// <param name="collectionName">集合名称</param>
-        /// <param name="key">连接KEY</param>
+        /// <param name="key">配置Key</param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
         public static IMongoCollection<BsonDocument> GetCollection(string dbName, string collectionName, string key = "")
         {
-            // 无数据库连接异常
+            // 无服务异常
             if (ClientDict.Value.Count == 0)
             {
-                throw new Exception("未连接到任何MongoDB数据库");
+                throw new Exception("未连接到任何MongoDB服务");
             }
 
-            // 如果KEY为空, 默认获取第一个连接
+            // 如果Key为空, 默认获取第一个连接
             if (string.IsNullOrWhiteSpace(key))
             {
                 return ClientDict.Value.First().Value.GetDatabase(dbName).GetCollection<BsonDocument>(collectionName);

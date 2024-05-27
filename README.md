@@ -240,7 +240,8 @@ app.Run();
   "TvMongo": [
     {
       "Key": "test",
-      "ConnectionStr": "mongodb://username:password@host:port/?readPreference=secondaryPreferred"
+      // readPreference=secondaryPreferred 读写分离
+      "ConnectionStr": "mongodb://username:password@host:port/?readPreference=secondaryPreferred" 
     }
   ]
 }
@@ -268,7 +269,7 @@ internal class Test : TvMongoDataBase
         如果传入, 则以传入的collectionName为准
         如果省略, 则以实体特性TvMongo中指定的为准
         如果省略且未使用实体特性TvMongo指定, 则以实体名称为准
-    key: 指定连接KEY (可省略)
+    key: 指定配置Key (可省略)
         如果传入, 则以传入的key为准
         如果省略, 则默认配置中的第一个key
  */
@@ -295,6 +296,61 @@ var collection = TvMongo.GetCollection("dbName", "collectionName", "test");
 
 // 查询数据
 var data = await collection.Find(i => i["_id"] == ObjectId.Empty).ToListAsync();
+```
+
+## Redis
+
+### 配置
+
+```json
+"TvConfig": {
+  "TvRedis": [
+    {
+      "Key": "test",
+      // defaultDatabase=dbNumber 指定默认连接库编号
+      "ConnectionStr": "host:port,password=password,defaultDatabase=dbNumber"
+    }
+  ]
+}
+```
+
+### 获取连接客户端
+
+```c#
+using Tayvey.Tools.TvRedises;
+
+/*
+ 获取连接客户端
+ key: 指定配置Key (可省略)
+    如果传入, 则以传入的key为准
+    如果省略, 则默认配置中的第一个key
+ */
+var client = TvRedis.GetClient("test");
+
+// 获取服务器列表
+_ = client.GetServers();
+```
+
+### 获取连接库
+
+```C#
+using StackExchange.Redis;
+using Tayvey.Tools.TvRedises;
+
+/*
+ 获取连接客户端
+ key: 指定配置Key (可省略)
+    如果传入, 则以传入的key为准
+    如果省略, 则默认配置中的第一个key
+ db: 指定连接库编号 (可省略)
+    如果传入, 则以传入的db为准 (负数等同于省略)
+    如果省略, 并且在连接字符串中指定了defaultDatabase=dbNumber, 则以dbNumber为准
+    如果省略, 但未指定defaultDatabase=dbNumber, 则以0为准
+ */
+var db = TvRedis.GetDatabase("test", -1);
+
+// 获取string数据
+_ = await db.StringGetAsync("test", CommandFlags.PreferReplica);
 ```
 
 ## Socekt 服务端/客户端

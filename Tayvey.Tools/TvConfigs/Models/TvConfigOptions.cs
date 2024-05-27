@@ -2,6 +2,7 @@
 using Tayvey.Tools.TvSwaggers.Models;
 using Tayvey.Tools.TvMongos.Models;
 using System.Collections.Generic;
+using Tayvey.Tools.TvRedises.Models;
 #endif
 
 namespace Tayvey.Tools.TvConfigs.Models
@@ -29,6 +30,17 @@ namespace Tayvey.Tools.TvConfigs.Models
         public List<TvMongoConfig> TvMongo { get; set; } = new();
 #else
         public List<TvMongoConfig> TvMongo { get; set; } = new List<TvMongoConfig>();
+#endif
+
+        /// <summary>
+        /// TvRedis配置
+        /// </summary>
+#if NET8_0_OR_GREATER
+        public List<TvRedisConfig> TvRedis { get; set; } = [];
+#elif NET6_0_OR_GREATER
+        public List<TvRedisConfig> TvRedis { get; set; } = new();
+#else
+        public List<TvRedisConfig> TvRedis { get; set; } = new List<TvRedisConfig>();
 #endif
     }
 }

@@ -23,6 +23,7 @@ global using MongoDB.Driver;
 global using Newtonsoft.Json;
 global using Newtonsoft.Json.Serialization;
 global using OfficeOpenXml;
+global using StackExchange.Redis;
 global using Swashbuckle.AspNetCore.SwaggerGen;
 global using System.ComponentModel;
 
@@ -37,6 +38,7 @@ global using Tayvey.Tools.TvConfigs.Models;
 global using Tayvey.Tools.TvExcels.Models;
 global using Tayvey.Tools.TvMongos.Attrs;
 global using Tayvey.Tools.TvMongos.Models;
+global using Tayvey.Tools.TvRedises.Models;
 global using Tayvey.Tools.TvSockets.Enums;
 global using Tayvey.Tools.TvSockets.Models;
 global using Tayvey.Tools.TvSwaggers.Models;
