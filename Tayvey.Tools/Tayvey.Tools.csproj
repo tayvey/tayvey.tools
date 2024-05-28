@@ -4,11 +4,32 @@
     <TargetFrameworks>netstandard2.1;net6.0;net8.0</TargetFrameworks>
     <Nullable>enable</Nullable>
 	<OpenApiGenerateDocuments>false</OpenApiGenerateDocuments>
+	<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+	<Title>$(AssemblyName)</Title>
+	<Version>0.0.1-beta</Version>
+	<Authors>tayvey</Authors>
+	<Company />
+	<Description>This bag is for myself</Description>
+	<PackageReadmeFile>README.md</PackageReadmeFile>
+	<RepositoryUrl>https://github.com/tayvey/tayvey.tools</RepositoryUrl>
+	<PackageLicenseFile>LICENSE</PackageLicenseFile>
+	<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' != 'netstandard2.1' ">
 	<ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 	
   <ItemGroup>
     <PackageReference Include="EPPlus" Version="7.1.2" />
