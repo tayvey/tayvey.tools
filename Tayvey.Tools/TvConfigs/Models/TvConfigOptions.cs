@@ -3,6 +3,7 @@ using Tayvey.Tools.TvSwaggers.Models;
 using Tayvey.Tools.TvMongos.Models;
 using System.Collections.Generic;
 using Tayvey.Tools.TvRedises.Models;
+using Tayvey.Tools.TvTimedTasks.Models;
 #endif
 
 namespace Tayvey.Tools.TvConfigs.Models
@@ -41,6 +42,28 @@ namespace Tayvey.Tools.TvConfigs.Models
         public List<TvRedisConfig> TvRedis { get; set; } = new();
 #else
         public List<TvRedisConfig> TvRedis { get; set; } = new List<TvRedisConfig>();
+#endif
+
+        /// <summary>
+        /// Tv定时任务配置
+        /// </summary>
+#if NET8_0_OR_GREATER
+        public List<TvTimedTaskConfig> TvTimedTask { get; set; } = [];
+#elif NET6_0_OR_GREATER
+        public List<TvTimedTaskConfig> TvTimedTask { get; set; } = new();
+#else
+        public List<TvTimedTaskConfig> TvTimedTask { get; set; } = new List<TvTimedTaskConfig>();
+#endif
+
+        /// <summary>
+        /// Tv中间件配置
+        /// </summary>
+#if NET8_0_OR_GREATER
+        public List<string> TvMiddleware { get; set; } = [];
+#elif NET6_0_OR_GREATER
+        public List<string> TvMiddleware { get; set; } = new();
+#else
+        public List<string> TvMiddleware { get; set; } = new List<string>();
 #endif
     }
 }

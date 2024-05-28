@@ -9,6 +9,7 @@ global using System.Runtime.InteropServices;
 global using System.Security.Cryptography;
 global using System.Text;
 global using System.Text.Json.Serialization;
+global using System.Text.RegularExpressions;
 
 // NUGET
 global using Microsoft.AspNetCore.Builder;
@@ -23,6 +24,8 @@ global using MongoDB.Driver;
 global using Newtonsoft.Json;
 global using Newtonsoft.Json.Serialization;
 global using OfficeOpenXml;
+global using Quartz;
+global using Quartz.Impl;
 global using StackExchange.Redis;
 global using Swashbuckle.AspNetCore.SwaggerGen;
 global using System.ComponentModel;
@@ -30,16 +33,18 @@ global using System.ComponentModel;
 // 项目
 global using Tayvey.Tools.TvApiResults.Enums;
 global using Tayvey.Tools.TvApiResults.Models;
-global using Tayvey.Tools.TvAutoDIs;
+global using Tayvey.Tools.TvAutoDIs.Models;
 global using Tayvey.Tools.TvAutoDIs.Attrs;
 global using Tayvey.Tools.TvAutoDIs.Enums;
 global using Tayvey.Tools.TvConfigs;
 global using Tayvey.Tools.TvConfigs.Models;
 global using Tayvey.Tools.TvExcels.Models;
+global using Tayvey.Tools.TvMiddlewares.Middlewares;
 global using Tayvey.Tools.TvMongos.Attrs;
 global using Tayvey.Tools.TvMongos.Models;
 global using Tayvey.Tools.TvRedises.Models;
 global using Tayvey.Tools.TvSockets.Enums;
 global using Tayvey.Tools.TvSockets.Models;
 global using Tayvey.Tools.TvSwaggers.Models;
+global using Tayvey.Tools.TvTimedTasks.Models;
 #endif

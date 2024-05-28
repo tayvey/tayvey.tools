@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using Tayvey.Tools.TvAutoDIs.Attrs;
 using Tayvey.Tools.TvAutoDIs.Enums;
+using Tayvey.Tools.TvAutoDIs.Models;
 #endif
 
 namespace Tayvey.Tools.TvAutoDIs
@@ -18,101 +19,54 @@ namespace Tayvey.Tools.TvAutoDIs
         /// <summary>
         /// 服务容器
         /// </summary>
-        public static ServiceProvider? Service { get; private set; }
-
-        /// <summary>
-        /// 初始化锁
-        /// </summary>
-#if NET6_0_OR_GREATER
-        private static readonly object InitLock = new();
+#if NET6_0_OR_GREATER        
+        private static readonly Lazy<ServiceProvider> Service = new(LzService);
 #else
-        private static readonly object InitLock = new object();
+        private static readonly Lazy<ServiceProvider> Service = new Lazy<ServiceProvider>(LzService);
 #endif
 
         /// <summary>
-        /// 添加Tv自动依赖注入
+        /// 自动依赖注入的类
         /// </summary>
-        /// <param name="service"></param>
-        public static void AddTvAutoDI(this IServiceCollection service)
+#if NET6_0_OR_GREATER        
+        private static readonly Lazy<List<TvAutoDIClass>> Classes = new(LzClasses);
+#else
+        private static readonly Lazy<List<TvAutoDIClass>> Classes = new Lazy<List<TvAutoDIClass>>(LzClasses);
+#endif
+
+        /// <summary>
+        /// 懒加载服务容器
+        /// </summary>
+        /// <returns></returns>
+        private static ServiceProvider LzService()
         {
-            // 获取程序集列表
-            var assembliesPq = GetAssemblies().AsParallel();
+            // 创建服务集合
+            var services = new ServiceCollection();
 
-            // 获取自动依赖注入的类
-            var classPq = assembliesPq.Select(GetAutoDIClass).SelectMany(item => item);
+            // 自动依赖注入
+            services.AddTvAutoDI();
 
-            var test = classPq.ToList();
-
-            // 遍历依赖注入
-            foreach (var (clz, interfaces, attr) in classPq)
-            {
-                // 生命周期
-                var lifeCycle = attr.LifeCycle;
-
-                // 忽略接口
-                var ignoreInterface = attr.IgnoreInterface;
-
-                // 自动依赖注入
-                AutoDI(service, clz, interfaces, lifeCycle, ignoreInterface);
-            }
+            // 构建服务提供程序
+            return services.BuildServiceProvider();
         }
 
         /// <summary>
-        /// 获取程序集列表
+        /// 懒加载可以自动依赖注入的类
         /// </summary>
         /// <returns></returns>
-        internal static List<Assembly> GetAssemblies()
-        {
-            // 获取入口程序集
-            var entry = Assembly.GetEntryAssembly();
-
-            // 获取Tayvey.Tools程序集
-            var tvDll = Assembly.GetExecutingAssembly();
-
-            // 获取入口程序集引用的程序集
-            var rAssembliesPq = entry!.GetReferencedAssemblies().AsParallel();
-
-            // 获取已加载的程序集
-            var loadAssemblies = AppDomain.CurrentDomain.GetAssemblies().ToList();
-
-            // 筛选非Tayvey.Tools程序集
-            rAssembliesPq = rAssembliesPq.Where(i => i.FullName != tvDll.FullName);
-
-            // 筛选未加载的程序集
-            rAssembliesPq = rAssembliesPq.Where(i => !loadAssemblies.AsParallel().Any(x => x.FullName == i.FullName));
-
-            // 加载程序集
-            var assembliesPq = rAssembliesPq.Select(Assembly.Load).AsParallel();
-            loadAssemblies.AddRange(assembliesPq);
-
-            // 获取引用了Tayvey.Tools的程序集
-            assembliesPq = loadAssemblies.AsParallel().Where(ab =>
-            {
-                var raPq = ab.GetReferencedAssemblies().AsParallel();
-                return raPq.Any(ra => ra.FullName == tvDll.FullName);
-            });
-
-            return assembliesPq.ToList();
-        }
-
-        /// <summary>
-        /// 获取自动依赖注入的类
-        /// </summary>
-        /// <param name="assembly">程序集</param>
-        /// <returns></returns>
-        private static ParallelQuery<(Type clz, List<Type> interfaces, TvAutoDIAttribute attr)> GetAutoDIClass(Assembly assembly)
+        private static List<TvAutoDIClass> LzClasses()
         {
             // 获取所有类
-            var typePq = assembly.GetTypes().AsParallel();
-
-            // 筛选非抽象类
-            typePq = typePq.Where(type => type.IsClass && !type.IsAbstract);
-
-            // 筛选有TvAutoDI特性的类
-            typePq = typePq.Where(type => type.GetCustomAttribute<TvAutoDIAttribute>() != null);
+            var typePq = TvRelyAssembly.LzRelyAssemblyTypes.Value
+                // 并行处理
+                .AsParallel()
+                // 筛选非抽象类
+                .Where(type => type.IsClass && !type.IsAbstract)
+                // 筛选有TvAutoDI特性的类
+                .Where(type => type.GetCustomAttribute<TvAutoDIAttribute>() != null);
 
             // 获取类直接实现的所有接口
-            var classPq = typePq.Select(type =>
+            return typePq.Select(type =>
             {
                 // 类实现的所有接口
                 var allInterfaces = type.GetInterfaces();
@@ -123,108 +77,61 @@ namespace Tayvey.Tools.TvAutoDIs
                 // 排除非直接实现的接口
                 var interfaces = allInterfaces.Except(baseInterfaces).ToList();
 
-                return (type, interfaces, type.GetCustomAttribute<TvAutoDIAttribute>()!);
-            }).AsParallel();
+                // TvAutoDI特性
+                var attr = type.GetCustomAttribute<TvAutoDIAttribute>()!;
 
-            return classPq;
+                return new TvAutoDIClass(type, attr)
+                {
+                    Interfaces = interfaces
+                };
+            }).ToList();
         }
 
         /// <summary>
-        /// 自动依赖注入
+        /// 添加Tv自动依赖注入
         /// </summary>
-        /// <param name="service">服务注册容器</param>
-        /// <param name="clz">类</param>
-        /// <param name="interfaces">类直接实现的接口</param>
-        /// <param name="lifeCycle">生命周期</param>
-        /// <param name="ignoreInterface">是否忽略接口</param>
-        private static void AutoDI(
-            IServiceCollection service,
-            Type clz,
-            List<Type> interfaces,
-            TvAutoDILifeCycle lifeCycle,
-            bool ignoreInterface
-        )
+        /// <param name="service"></param>
+        public static void AddTvAutoDI(this IServiceCollection service)
         {
-            // 接口为空或者忽略接口
-            if (interfaces.Count == 0 || ignoreInterface)
-            {
-                switch (lifeCycle)
-                {
-                    case TvAutoDILifeCycle.Singleton:
-                        service.AddSingleton(clz);
-                        break;
-                    case TvAutoDILifeCycle.Scoped:
-                        service.AddScoped(clz);
-                        break;
-                    case TvAutoDILifeCycle.Transient:
-                        service.AddTransient(clz);
-                        break;
-                }
-                return;
-            }
-
             // 遍历依赖注入
-            foreach (var item in interfaces)
+            foreach (var item in Classes.Value)
             {
-                switch (lifeCycle)
+                // 无接口依赖注入
+                if (item.Interfaces.Count == 0 || item.Attr.IgnoreInterface)
                 {
-                    case TvAutoDILifeCycle.Singleton:
-                        service.AddSingleton(item, clz);
-                        break;
-                    case TvAutoDILifeCycle.Scoped:
-                        service.AddScoped(item, clz);
-                        break;
-                    case TvAutoDILifeCycle.Transient:
-                        service.AddTransient(item, clz);
-                        break;
+                    _ = item.Attr.LifeCycle switch
+                    {
+                        TvAutoDILifeCycle.Singleton => service.AddSingleton(item.Clz),
+                        TvAutoDILifeCycle.Scoped => service.AddScoped(item.Clz),
+                        TvAutoDILifeCycle.Transient => service.AddTransient(item.Clz),
+                        _ => service
+                    };
+
+                    continue;
+                }
+
+                // 遍历接口依赖注入
+                foreach (var i in item.Interfaces)
+                {
+                    _ = item.Attr.LifeCycle switch
+                    {
+                        TvAutoDILifeCycle.Singleton => service.AddSingleton(i, item.Clz),
+                        TvAutoDILifeCycle.Scoped => service.AddScoped(i, item.Clz),
+                        TvAutoDILifeCycle.Transient => service.AddTransient(i, item.Clz),
+                        _ => service
+                    };
                 }
             }
         }
-
-        /// <summary>
-        /// 初始化服务容器
-        /// </summary>
-        public static void Init()
-        {
-            lock (InitLock)
-            {
-                if (Service == null)
-                {
-                    // 创建服务集合
-                    var services = new ServiceCollection();
-
-                    // 自动依赖注入
-                    services.AddTvAutoDI();
-
-                    // 构建服务提供程序
-                    Service = services.BuildServiceProvider();
-                }
-            }
-        }
-
+        
         /// <summary>
         /// 获取实例
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-#if NET6_0_OR_GREATER
-        public static T? Get<T>() where T : notnull
-#else
         public static T Get<T>() where T : notnull
-#endif
         {
-            if (Service == null)
-            {
-#if NET6_0_OR_GREATER
-                return default;
-#else
-#pragma warning disable CS8603 // 可能返回 null 引用。
-                return default;
-#pragma warning restore CS8603 // 可能返回 null 引用。
-#endif
-            }
-
-            return Service.GetRequiredService<T>();
+            return Service.Value.GetRequiredService<T>();
         }
     }
 }

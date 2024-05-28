@@ -4,7 +4,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using System;
 using System.IO;
-using Tayvey.Tools.TvAutoDIs;
 using Tayvey.Tools.TvConfigs;
 #endif
 
@@ -19,50 +18,45 @@ namespace Tayvey.Tools.TvSwaggers
         /// 添加TvSwagger服务
         /// </summary>
         /// <param name="service"></param>
-        public static void AddTvSwagger(this IServiceCollection service)
+        public static IServiceCollection AddTvSwagger(this IServiceCollection service) => service.AddSwaggerGen(opt =>
         {
-            service.AddSwaggerGen(opt =>
+            // Swagger文档基础信息
+            opt.SwaggerDoc(TvConfig.Options.TvSwagger.Name, new OpenApiInfo
             {
-                // Swagger文档基础信息
-                opt.SwaggerDoc(TvConfig.Options.TvSwagger.Name, new OpenApiInfo
+                Version = TvConfig.Options.TvSwagger.Version,
+                Title = TvConfig.Options.TvSwagger.Name
+            });
+            opt.OrderActionsBy(o => o.RelativePath);
+
+            // 添加XML文件
+            foreach (var assembly in TvRelyAssembly.RelyAssemblies.Value)
+            {
+                // 拼接路径并检查文件是否存在
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, $"{assembly.GetName().Name}.xml");
+                if (!File.Exists(xmlPath))
                 {
-                    Version = TvConfig.Options.TvSwagger.Version,
-                    Title = TvConfig.Options.TvSwagger.Name
-                });
-                opt.OrderActionsBy(o => o.RelativePath);
-
-                // 获取程序集列表
-                var assemblyPq = TvAutoDI.GetAssemblies();
-
-                // 添加XML文件
-                foreach (var assembly in assemblyPq)
-                {
-                    // 拼接路径并检查文件是否存在
-                    var xmlPath = Path.Combine(AppContext.BaseDirectory, $"{assembly.GetName().Name}.xml");
-                    if (!File.Exists(xmlPath))
-                    {
-                        continue;
-                    }
-
-                    opt.IncludeXmlComments(xmlPath, true);
+                    continue;
                 }
 
-                // 配置自定义请求头
-                foreach (var header in TvConfig.Options.TvSwagger.Headers)
-                {
-                    opt.AddSecurityDefinition(header.Key, new OpenApiSecurityScheme
-                    {
-                        In = ParameterLocation.Header,
-                        Description = header.Desc,
-                        Name = header.Key,
-                        Type = SecuritySchemeType.ApiKey
-                    });
+                opt.IncludeXmlComments(xmlPath, true);
+            }
 
-                    opt.AddSecurityRequirement(new OpenApiSecurityRequirement {
+            // 配置自定义请求头
+            foreach (var header in TvConfig.Options.TvSwagger.Headers)
+            {
+                opt.AddSecurityDefinition(header.Key, new OpenApiSecurityScheme
+                {
+                    In = ParameterLocation.Header,
+                    Description = header.Desc,
+                    Name = header.Key,
+                    Type = SecuritySchemeType.ApiKey
+                });
+
+                opt.AddSecurityRequirement(new OpenApiSecurityRequirement {
                     {
-                        new OpenApiSecurityScheme 
+                        new OpenApiSecurityScheme
                         {
-                            Reference = new OpenApiReference 
+                            Reference = new OpenApiReference
                             {
                                 Type = ReferenceType.SecurityScheme,
                                 Id = header.Key
@@ -70,12 +64,11 @@ namespace Tayvey.Tools.TvSwaggers
                         },
                         Array.Empty<string>()
                     }});
-                }
+            }
 
-                // 枚举注释
-                opt.SchemaFilter<EnumSchemaFilter>();
-            });
-        }
+            // 枚举注释
+            opt.SchemaFilter<EnumSchemaFilter>();
+        });
 
         /// <summary>
         /// 使用TvSwagger

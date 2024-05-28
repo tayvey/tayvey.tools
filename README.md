@@ -74,7 +74,6 @@ service.AddTvAutoDI();
 ```C#
 using Tayvey.Tools.TvAutoDIs;
 
-TvAutoDI.Init();
 var iTest = TvAutoDI.Get<ITest>();
 iTest?.Print();
 ```
@@ -161,71 +160,94 @@ var cell = cellsPq.FirstOrDefault(i => i.Col == 1);
 var value = cell?.Value;
 ```
 
-## 异常
+## 中间件
 
-### 中间件
-
-#### HTTP状态码异常处理中间件
+### 全局异常中间件
 
 ```c#
-using Tayvey.Tools.TvExceptions.Middlewares;
+using Tayvey.Tools.TvMiddlewares.Middlewares;
 
-var builder = WebApplication.CreateBuilder(args);
+public class CustomGlobalEx : TvMiddlewareGlobalEx
+{
+    public CustomGlobalEx(RequestDelegate next) : base(next)
+    {
+        base.Process = Process;
+    }
 
-// service
-var service = builder.Services;
-service.AddControllers();
-
-// app
-var app = builder.Build();
-
-// HTTP状态码异常处理 404/405
-app.UseTvExHttpStatusCode();
-
-app.MapControllers();
-app.Run();
+    private static void Process(Exception e)
+    {
+        // 自定义记录异常
+    }
+}
 ```
 
-#### WebApi全局异常处理中间件
+### HTTP状态码处理中间件
+
+```c#
+using Tayvey.Tools.TvMiddlewares.Middlewares;
+
+public class CustomHttpStatusCode : TvMiddlewareHttpStatusCode
+{
+    public CustomHttpStatusCode(RequestDelegate next) : base(next)
+    {
+        base.Process = Process;
+    }
+
+    private static void Process(HttpContext context)
+    {
+        // 自定义处理
+    }
+}
+```
+
+### 自动注册中间件
+
+#### 配置
+
+```json
+"TvConfig": {
+  "TvMiddleware": [
+    "Test", // 中间件类名, 按顺序注册
+    "Test1"
+  ]
+}
+```
+
+#### 自定义中间件
 
 ```C#
-using Tayvey.Tools.TvExceptions.Middlewares;
+using Tayvey.Tools.TvMiddlewares.Middlewares;
 
-var builder = WebApplication.CreateBuilder(args);
-
-// service
-var service = builder.Services;
-service.AddControllers();
-
-// app
-var app = builder.Build();
-
-// 全局异常处理
-app.UseTvExWebApiGlobalEx(e =>
+// 必须继承 TvMiddlewareBase 才能被自动注册
+public class CustomMiddleware(RequestDelegate next) : TvMiddlewareBase(next)
 {
-    Console.WriteLine($"未知异常 {e.Message} {e.StackTrace}");
-});
-
-app.MapControllers();
-app.Run();
+    public override Task InvokeAsync(HttpContext context)
+    {
+        // 自定义处理
+    }
+}
 ```
 
-#### WebApi模型验证异常处理
+#### 使用自动注册
 
-```c#
-using Tayvey.Tools.TvExceptions;
+```C#
+using Tayvey.Tools.TvConfigs;
+using Tayvey.Tools.TvMiddlewares;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// 初始化配置 (需要读取中间件配置)
+TvConfig.InitConfiguration(builder.Configuration);
 
 // service
 var service = builder.Services;
 service.AddControllers();
 
-// TvAPI模型验证异常处理
-service.AddTvExWebApiModelState();
-
 // app
 var app = builder.Build();
+
+// 自动注册中间件
+app.UseTvMiddleware();
 
 app.MapControllers();
 app.Run();
@@ -484,6 +506,78 @@ app.MapControllers();
 app.Run();
 ```
 
+## 定时任务
+
+### 自动注册定时任务
+
+#### 配置
+
+```json
+"TvConfig": {
+  "TvTimedTask": [
+    {
+      "ClassName": "Test", // 定时任务类名
+      "Cron": "0/10 * * * * ? " // cton表达式
+    }
+  ]
+}
+```
+
+#### 任务
+
+```c#
+using Quartz;
+
+public class Test : IJob
+{
+    public async Task Execute(IJobExecutionContext context)
+    {
+        // 执行任务
+    }
+}
+```
+
+#### WebApi项目自动注册
+
+```c#
+using Tayvey.Tools.TvConfigs;
+using Tayvey.Tools.TvTimedTasks;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// 初始化配置 (需要读取定时任务配置)
+TvConfig.InitConfiguration(builder.Configuration);
+
+// service
+var service = builder.Services;
+service.AddControllers();
+
+// 自动注册定时任务
+service.AddTvTimedTask();
+
+// app
+var app = builder.Build();
+
+app.MapControllers();
+app.Run();
+```
+
+#### CMD项目自动注册
+
+```c#
+using Tayvey.Tools.TvConfigs;
+using Tayvey.Tools.TvTimedTasks;
+
+// 配置文件
+var file1 = Path.Combine(AppContext.BaseDirectory, "config.json");
+
+// 初始化配置 (需要读取定时任务配置)
+TvConfig.InitConfiguration(file1);
+
+// 初始化并启动定时任务
+TvTimedTask.Init();
+```
+
 ## 数据转换
 
 ### IPEndPoint
@@ -650,6 +744,47 @@ var str = "tayvey.tools";
 
 // 加密. 密文是否大写:false
 str = str.MD5Encryption(false);
+```
+
+## 模型校验
+
+### 控制器
+
+```c#
+using Microsoft.AspNetCore.Mvc;
+using Tayvey.Tools.TvApiResults.Models;
+
+[Route("api/[Controller]/[Action]")]
+[ApiController] // 需要使用这个特性
+public class TestController : ControllerBase
+{
+    [HttpPost]
+    public IActionResult Post(TestReq req)
+    {
+        return TvApiResult.Ok("成功", req);
+    }
+}
+```
+
+### 添加模型校验
+
+```c#
+using Tayvey.Tools;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// service
+var service = builder.Services;
+service.AddControllers();
+
+// 模型校验
+service.AddTvModelState();
+
+// app
+var app = builder.Build();
+
+app.MapControllers();
+app.Run();
 ```
 
 ## 异步
