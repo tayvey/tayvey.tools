@@ -193,12 +193,11 @@ public class CustomGlobalEx : TvMiddlewareGlobalEx
 {
     public CustomGlobalEx(RequestDelegate next) : base(next)
     {
-        base.Process = Process;
     }
 
-    private static void Process(Exception e)
+    protected override async Task WriteLogAsync(Exception e)
     {
-        // 自定义记录异常
+        // 日志记录
     }
 }
 ```
@@ -212,12 +211,14 @@ public class CustomHttpStatusCode : TvMiddlewareHttpStatusCode
 {
     public CustomHttpStatusCode(RequestDelegate next) : base(next)
     {
-        base.Process = Process;
     }
 
-    private static void Process(HttpContext context)
+    protected override async Task<bool> CustomReturn(HttpContext context)
     {
-        // 自定义处理
+        // 返回处理
+
+        // true: 使用返回处理, false: 不使用返回处理
+        return false;
     }
 }
 ```

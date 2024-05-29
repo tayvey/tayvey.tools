@@ -20,11 +20,6 @@ namespace Tayvey.Tools.TvMiddlewares.Middlewares
     public abstract class TvMiddlewareGlobalEx : TvMiddlewareBase
 #endif
     {
-        /// <summary>
-        /// 自定义处理异常委托
-        /// </summary>
-        public Action<Exception>? Process { get; set; }
-
 #if NET6_0 || NETSTANDARD2_1
         /// <summary>
         /// 初始化构造
@@ -53,18 +48,8 @@ namespace Tayvey.Tools.TvMiddlewares.Middlewares
                 // 调试模式直接抛出异常
                 if (Debugger.IsAttached) throw;
 
-                // 自定义处理异常
-                if (Process != null)
-                {
-                    await Task.Run(() =>
-                    {
-                        try
-                        {
-                            Process(e);
-                        }
-                        catch{}
-                    });
-                }
+                // 日志记录
+                await WriteLogAsync(e);
 
                 // 返回异常
                 await ReturnError(context);
@@ -100,5 +85,12 @@ namespace Tayvey.Tools.TvMiddlewares.Middlewares
                 ContractResolver = new CamelCasePropertyNamesContractResolver()
             }));
         }
+
+        /// <summary>
+        /// 日志记录
+        /// </summary>
+        /// <param name="e">异常</param>
+        /// <returns></returns>
+        protected abstract Task WriteLogAsync(Exception e);
     }
 }

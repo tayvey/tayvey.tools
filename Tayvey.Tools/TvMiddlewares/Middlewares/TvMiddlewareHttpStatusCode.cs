@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using System;
 using System.Threading.Tasks;
 using Tayvey.Tools.TvApiResults.Models;
 #endif
@@ -19,11 +18,6 @@ namespace Tayvey.Tools.TvMiddlewares.Middlewares
     public abstract class TvMiddlewareHttpStatusCode : TvMiddlewareBase
 #endif
     {
-        /// <summary>
-        /// 自定义处理委托
-        /// </summary>
-        public Action<HttpContext>? Process { get; set; }
-
 #if NET6_0 || NETSTANDARD2_1
         /// <summary>
         /// 初始化构造
@@ -48,18 +42,7 @@ namespace Tayvey.Tools.TvMiddlewares.Middlewares
             if (!context.Response.Headers.ContainsKey("Tv-Api-Result"))
             {
                 // 自定义处理
-                if (Process != null)
-                {
-                    await Task.Run(() =>
-                    {
-                        try
-                        {
-                            Process(context);
-                        }
-                        catch { }
-                    });
-                }
-                else
+                if (!await CustomReturn(context))
                 {
                     await ReturnHttpStatusCode(context);
                 }
@@ -105,5 +88,12 @@ namespace Tayvey.Tools.TvMiddlewares.Middlewares
                 ContractResolver = new CamelCasePropertyNamesContractResolver()
             }));
         }
+
+        /// <summary>
+        /// 自定义返回
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        protected abstract Task<bool> CustomReturn(HttpContext context);
     }
 }
