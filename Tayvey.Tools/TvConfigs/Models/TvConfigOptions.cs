@@ -4,6 +4,7 @@ using Tayvey.Tools.TvMongos.Models;
 using System.Collections.Generic;
 using Tayvey.Tools.TvRedises.Models;
 using Tayvey.Tools.TvTimedTasks.Models;
+using Tayvey.Tools.TvSoaps.Models;
 #endif
 
 namespace Tayvey.Tools.TvConfigs.Models
@@ -64,6 +65,17 @@ namespace Tayvey.Tools.TvConfigs.Models
         public List<string> TvMiddleware { get; set; } = new();
 #else
         public List<string> TvMiddleware { get; set; } = new List<string>();
+#endif
+
+        /// <summary>
+        /// TvSoap配置
+        /// </summary>
+#if NET8_0_OR_GREATER
+        public List<TvSoapConfig> TvSoap { get; set; } = [];
+#elif NET6_0_OR_GREATER
+        public List<TvSoapConfig> TvSoap { get; set; } = new();
+#else
+        public List<TvSoapConfig> TvSoap { get; set; } = new List<TvSoapConfig>();
 #endif
     }
 }

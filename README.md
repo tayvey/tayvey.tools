@@ -375,6 +375,65 @@ var db = TvRedis.GetDatabase("test", -1);
 _ = await db.StringGetAsync("test", CommandFlags.PreferReplica);
 ```
 
+## SOAP
+
+### 配置
+
+```json
+"TvConfig": {
+  "TvSoap": [
+    {
+      "ClassName": "SoapTest", // 类名
+      "Version": 12 // 11 | 12, 非11和12将默认11
+    }
+  ]
+}
+```
+
+### SOAP
+
+```C#
+using System.ServiceModel;
+
+// 访问路径: /soap/[className].asmx
+[ServiceContract]
+public class SoapTest
+{
+    [OperationContract]
+    public string Get()
+    {
+        return "";
+    }
+}
+```
+
+### 服务&管道
+
+```C#
+using Tayvey.Tools.TvSoaps;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// 初始化配置 (需要读取SOAP配置)
+TvConfig.InitConfiguration(builder.Configuration);
+
+// service
+var service = builder.Services;
+service.AddControllers();
+
+// SOAP服务
+service.AddTvSoap();
+
+// app
+var app = builder.Build();
+
+// SOAP管道
+app.UseTvSoap();
+
+app.MapControllers();
+app.Run();
+```
+
 ## Socekt 服务端/客户端
 
 ### 启动&停止服务端

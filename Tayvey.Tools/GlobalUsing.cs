@@ -26,9 +26,12 @@ global using Newtonsoft.Json.Serialization;
 global using OfficeOpenXml;
 global using Quartz;
 global using Quartz.Impl;
+global using SoapCore;
 global using StackExchange.Redis;
 global using Swashbuckle.AspNetCore.SwaggerGen;
 global using System.ComponentModel;
+global using System.ServiceModel;
+global using System.ServiceModel.Channels;
 
 // 项目
 global using Tayvey.Tools.TvApiResults.Enums;
@@ -47,4 +50,5 @@ global using Tayvey.Tools.TvSockets.Enums;
 global using Tayvey.Tools.TvSockets.Models;
 global using Tayvey.Tools.TvSwaggers.Models;
 global using Tayvey.Tools.TvTimedTasks.Models;
+global using Tayvey.Tools.TvSoaps.Models;
 #endif
