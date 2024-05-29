@@ -1,5 +1,27 @@
 # Tayvey.Tools
 
+## TvTools
+
+### 服务&管道
+
+```c#
+using Tayvey.Tools;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// service
+var service = builder.Services;
+service.AddControllers();
+service.AddTvTools(builder.Configuration);
+
+// app
+var app = builder.Build();
+app.UseTvTools();
+
+app.MapControllers();
+app.Run();
+```
+
 ## Api返回
 
 WebApi返回

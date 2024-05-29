@@ -36,19 +36,24 @@ global using System.ServiceModel.Channels;
 // 项目
 global using Tayvey.Tools.TvApiResults.Enums;
 global using Tayvey.Tools.TvApiResults.Models;
+global using Tayvey.Tools.TvAutoDIs;
 global using Tayvey.Tools.TvAutoDIs.Models;
 global using Tayvey.Tools.TvAutoDIs.Attrs;
 global using Tayvey.Tools.TvAutoDIs.Enums;
 global using Tayvey.Tools.TvConfigs;
 global using Tayvey.Tools.TvConfigs.Models;
 global using Tayvey.Tools.TvExcels.Models;
+global using Tayvey.Tools.TvMiddlewares;
 global using Tayvey.Tools.TvMiddlewares.Middlewares;
 global using Tayvey.Tools.TvMongos.Attrs;
 global using Tayvey.Tools.TvMongos.Models;
 global using Tayvey.Tools.TvRedises.Models;
 global using Tayvey.Tools.TvSockets.Enums;
 global using Tayvey.Tools.TvSockets.Models;
+global using Tayvey.Tools.TvSwaggers;
 global using Tayvey.Tools.TvSwaggers.Models;
+global using Tayvey.Tools.TvTimedTasks;
 global using Tayvey.Tools.TvTimedTasks.Models;
+global using Tayvey.Tools.TvSoaps;
 global using Tayvey.Tools.TvSoaps.Models;
 #endif
