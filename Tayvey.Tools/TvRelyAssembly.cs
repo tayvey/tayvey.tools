@@ -93,7 +93,7 @@ namespace Tayvey.Tools
         private static HashSet<string> GetRelyAssemblyNames(string content, string assemblyName = "Tayvey.Tools")
         {
             // 生成正则表达式
-            var regex = new Regex(@$"(?<=""dependencies"":{{""{assemblyName}"":""[^""]+""}},""runtime"":{{"")[^""]+(?=[.]dll"")");
+            var regex = new Regex(@$"(?<=""dependencies"":{{[^}}]*""{assemblyName}""[^}}]*}},""runtime"":{{"")[^""]+(?=[.]dll"")");
 
             // 获取匹配项
             var assemblyNames = new List<string>();
