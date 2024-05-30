@@ -7,7 +7,7 @@ namespace Tayvey.Tools.TvMongos.Attrs
     /// <summary>
     /// TvMongo实体集合特性
     /// </summary>
-    [AttributeUsage(AttributeTargets.Class, Inherited = false)]
+    [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
     public sealed class TvMongoAttribute : Attribute
     {
         /// <summary>

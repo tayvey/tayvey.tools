@@ -8,7 +8,7 @@ namespace Tayvey.Tools.TvAutoDIs.Attrs
     /// <summary>
     /// Tv自动依赖注入特性
     /// </summary>
-    [AttributeUsage(AttributeTargets.Class, Inherited = false)]
+    [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
     public sealed class TvAutoDIAttribute : Attribute
     {
         /// <summary>
