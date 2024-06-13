@@ -33,7 +33,7 @@ namespace Tayvey.Tools.TvAutoDIs.Attrs
         /// </summary>
         /// <param name="lifeCycle">生命周期</param>
         /// <param name="ignoreInterface">是否忽略接口</param>
-        public TvAutoDIAttribute(TvAutoDILifeCycle lifeCycle, bool ignoreInterface = false)
+        public TvAutoDIAttribute(TvAutoDILifeCycle lifeCycle = TvAutoDILifeCycle.Scoped, bool ignoreInterface = false)
         {
             LifeCycle = lifeCycle;
             IgnoreInterface = ignoreInterface;

@@ -6,7 +6,7 @@
 	<OpenApiGenerateDocuments>false</OpenApiGenerateDocuments>
 	<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 	<Title>$(AssemblyName)</Title>
-	<Version>0.0.3-beta</Version>
+	<Version>0.0.4-beta</Version>
 	<Authors>tayvey</Authors>
 	<Company />
 	<Description>This bag is for myself</Description>
