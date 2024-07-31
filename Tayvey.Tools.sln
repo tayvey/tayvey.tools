@@ -10,12 +10,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "解决方案项", "解决�
 		.gitignore = .gitignore
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tayvey.Tools.CmdDemo", "Tayvey.Tools.CmdDemo\Tayvey.Tools.CmdDemo.csproj", "{C18C6846-99B9-4D2A-AAB0-62B6BFFA5FF6}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tayvey.Tools.WebApiDemo", "Tayvey.Tools.WebApiDemo\Tayvey.Tools.WebApiDemo.csproj", "{CE9601FB-3D30-407A-BC09-06A281D2DDCF}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tayvey.Tools.ClbDemo", "Tayvey.Tools.ClbDemo\Tayvey.Tools.ClbDemo.csproj", "{4D540025-E3A9-478F-91CB-D9B5657FC96E}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
