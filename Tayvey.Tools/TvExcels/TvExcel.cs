@@ -17,6 +17,15 @@ namespace Tayvey.Tools.TvExcels
     public static class TvExcel
     {
         /// <summary>
+        /// 静态构造
+        /// </summary>
+        static TvExcel()
+        {
+            ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial; // EPPlus非商业用途
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance); // 注册字符编码
+        }
+
+        /// <summary>
         /// 读取Excel
         /// </summary>
         /// <param name="stream">文件流</param>
@@ -25,8 +34,6 @@ namespace Tayvey.Tools.TvExcels
         {
             try
             {
-                ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial; // EPPlus非商业用途
-                Encoding.RegisterProvider(CodePagesEncodingProvider.Instance); // 注册字符编码
                 using var package = new ExcelPackage(stream); // 流读取Excel
 
                 // 单元格集合
