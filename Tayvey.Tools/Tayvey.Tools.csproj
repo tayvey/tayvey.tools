@@ -9,7 +9,7 @@
 	<Version>0.0.4-beta</Version>
 	<Authors>tayvey</Authors>
 	<Company />
-	<Description>This bag is for myself</Description>
+	<Description>For myself</Description>
 	<PackageReadmeFile>README.md</PackageReadmeFile>
 	<RepositoryUrl>https://github.com/tayvey/tayvey.tools</RepositoryUrl>
 	<PackageLicenseFile>LICENSE</PackageLicenseFile>
