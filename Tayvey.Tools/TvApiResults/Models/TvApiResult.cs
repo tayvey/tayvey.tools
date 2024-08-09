@@ -52,6 +52,22 @@ namespace Tayvey.Tools.TvApiResults.Models
         };
 
         /// <summary>
+        /// 成功
+        /// </summary>
+        /// <param name="message">返回消息</param>
+        /// <param name="data">返回数据</param>
+        /// <returns></returns>
+#if NET6_0_OR_GREATER
+        public static TvApiResult Ok(object? data = null) => new()
+#else
+        public static TvApiResult Ok(object? data = null) => new TvApiResult
+#endif
+        {
+            StatusCode = TvApiStatus.Ok,
+            Data = data
+        };
+
+        /// <summary>
         /// 失败
         /// </summary>
         /// <param name="message">返回消息</param>

@@ -8,6 +8,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "解决方案项", "解决方案项", "{FDCF6346-2DC0-418D-B780-DCB9838EA61E}"
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
+		to-do List.md = to-do List.md
 	EndProjectSection
 EndProject
 Global
@@ -20,18 +21,6 @@ Global
 		{6713074F-00C0-48B8-B652-89A958ED813D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6713074F-00C0-48B8-B652-89A958ED813D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6713074F-00C0-48B8-B652-89A958ED813D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C18C6846-99B9-4D2A-AAB0-62B6BFFA5FF6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C18C6846-99B9-4D2A-AAB0-62B6BFFA5FF6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C18C6846-99B9-4D2A-AAB0-62B6BFFA5FF6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C18C6846-99B9-4D2A-AAB0-62B6BFFA5FF6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CE9601FB-3D30-407A-BC09-06A281D2DDCF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CE9601FB-3D30-407A-BC09-06A281D2DDCF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CE9601FB-3D30-407A-BC09-06A281D2DDCF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CE9601FB-3D30-407A-BC09-06A281D2DDCF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4D540025-E3A9-478F-91CB-D9B5657FC96E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4D540025-E3A9-478F-91CB-D9B5657FC96E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4D540025-E3A9-478F-91CB-D9B5657FC96E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4D540025-E3A9-478F-91CB-D9B5657FC96E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
