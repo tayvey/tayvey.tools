@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 #endif
 
@@ -73,6 +74,15 @@ namespace Tayvey.Tools.TvSockets
         {
             get => _socket.ReceiveBufferSize;
             set => _socket.ReceiveBufferSize = value;
+        }
+
+        /// <summary>
+        /// 发送超时（毫秒）
+        /// </summary>
+        public int SendTimeout
+        {
+            get => _socket.SendTimeout;
+            set => _socket.SendTimeout = value;
         }
 
         /// <summary>
@@ -153,12 +163,28 @@ namespace Tayvey.Tools.TvSockets
         /// </summary>
         /// <param name="buffer"></param>
         /// <returns></returns>
-        public Task<int> SendAsync(byte[] buffer)
+        /// <exception cref="SocketException"></exception>
+        public async Task<int> SendAsync(byte[] buffer)
         {
+            using var cancel = new CancellationTokenSource();
+            if (SendTimeout > 0)
+            {
+                cancel.CancelAfter(TimeSpan.FromMilliseconds(SendTimeout));
+            }
+
 #if NET6_0_OR_GREATER
-            return _socket.SendAsync(new ReadOnlyMemory<byte>(buffer), SocketFlags.None, default).AsTask();
+            try
+            {
+                return await _socket.SendAsync(new ReadOnlyMemory<byte>(buffer), SocketFlags.None, cancel.Token).AsTask();
+            }
+            catch (OperationCanceledException)
+            {
+                throw new SocketException(10060);
+            }
 #else
             var tcs = new TaskCompletionSource<int>();
+            cancel.Token.Register(() => tcs.TrySetCanceled(cancel.Token));
+
             var sendArgs = new SocketAsyncEventArgs();
             sendArgs.SetBuffer(buffer, 0, buffer.Length);
             sendArgs.Completed += (s, e) =>
@@ -185,7 +211,14 @@ namespace Tayvey.Tools.TvSockets
                 }
             }
 
-            return tcs.Task;
+            try
+            {
+                return await tcs.Task;
+            }
+            catch (OperationCanceledException)
+            {
+                throw new SocketException(10060);
+            }
 #endif
         }
 
