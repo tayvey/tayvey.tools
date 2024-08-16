@@ -1,19 +1,17 @@
 ﻿#if NETSTANDARD2_1
 using System;
-using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Threading.Tasks;
 #endif
 
 namespace Tayvey.Tools.TvSockets
 {
     /// <summary>
-    /// TvSocket
+    /// TvTcp客户端
     /// </summary>
-    public class TvSocket
+    public class TvTcpClient
     {
         /// <summary>
         /// Socket
@@ -21,28 +19,47 @@ namespace Tayvey.Tools.TvSockets
         private Socket _socket;
 
         /// <summary>
-        /// 远程主机地址
+        /// 保持连接
         /// </summary>
-        private string? _remoteHost;
+        private bool _keepAlive = false;
 
         /// <summary>
-        /// 远程主机端口
+        /// 服务端地址
         /// </summary>
-        private int? _remotePort;
+        private string? _serverHost;
 
         /// <summary>
-        /// 远程主机连接锁
+        /// 服务端端口
+        /// </summary>
+        private int? _serverPort;
+
+        /// <summary>
+        /// 连接锁
         /// </summary>
 #if NET6_0_OR_GREATER
-        private readonly object _remoteConnectLock = new();
+        private readonly object _connectLock = new();
 #else
-        private readonly object _remoteConnectLock = new object();
+        private readonly object _connectLock = new object();
 #endif
 
         /// <summary>
-        /// 远程主机是否已连接
+        /// 是否已连接
         /// </summary>
-        private bool _remoteIsConnected = false;
+        private bool _isConnected = false;
+
+        /// <summary>
+        /// 发送数据锁
+        /// </summary>
+#if NET6_0_OR_GREATER
+        private readonly object _sendLock = new();
+#else
+        private readonly object _sendLock = new object();
+#endif
+
+        /// <summary>
+        /// 是否正在发送数据
+        /// </summary>
+        private bool _isSending = false;
 
         /// <summary>
         /// 同步接收数据锁
@@ -56,7 +73,23 @@ namespace Tayvey.Tools.TvSockets
         /// <summary>
         /// 是否正在接收数据
         /// </summary>
-        private bool _isReceive = false;
+        private bool _isReceiving = false;
+
+        /// <summary>
+        /// 是否保持连接
+        /// </summary>
+        public bool IsKeepAlive
+        {
+            get
+            {
+                return _keepAlive;
+            }
+            set
+            {
+                _keepAlive = value;
+                _socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, _keepAlive);
+            }
+        }
 
         /// <summary>
         /// 发送缓存区大小
@@ -64,7 +97,7 @@ namespace Tayvey.Tools.TvSockets
         public int SendBufferSize
         {
             get => _socket.SendBufferSize;
-            set => _socket.SendBufferSize = value;
+            set => _socket.SendBufferSize = value < 1 ? 1 : value;
         }
 
         /// <summary>
@@ -73,27 +106,22 @@ namespace Tayvey.Tools.TvSockets
         public int ReceiveBufferSize
         {
             get => _socket.ReceiveBufferSize;
-            set => _socket.ReceiveBufferSize = value;
+            set => _socket.ReceiveBufferSize = value < 1 ? 1 : value;
         }
 
         /// <summary>
-        /// 发送超时（毫秒）
+        /// 是否已断开连接
         /// </summary>
-        public int SendTimeout
-        {
-            get => _socket.SendTimeout;
-            set => _socket.SendTimeout = value;
-        }
+        public bool IsDisconnected => _socket.Poll(1000, SelectMode.SelectError);
 
         /// <summary>
-        /// 构造
+        /// 初始化构造
         /// </summary>
-        /// <param name="protocolType"></param>
         /// <param name="addressFamily"></param>
         /// <param name="socketType"></param>
-        public TvSocket(ProtocolType protocolType, AddressFamily addressFamily = AddressFamily.InterNetwork, SocketType socketType = SocketType.Stream)
+        public TvTcpClient(AddressFamily addressFamily = AddressFamily.InterNetwork, SocketType socketType = SocketType.Stream)
         {
-            _socket = new Socket(addressFamily, socketType, protocolType);
+            _socket = new Socket(addressFamily, socketType, ProtocolType.Tcp);
         }
 
         /// <summary>
@@ -103,18 +131,18 @@ namespace Tayvey.Tools.TvSockets
         /// <param name="port"></param>
         public void Connet(string host, int port)
         {
-            lock (_remoteConnectLock)
+            lock (_connectLock)
             {
-                if (_remoteIsConnected)
+                if (_isConnected)
                 {
                     return;
                 }
 
                 _socket.Connect(host, port);
 
-                _remoteIsConnected = true;
-                _remoteHost = host;
-                _remotePort = port;
+                _isConnected = true;
+                _serverHost = host;
+                _serverPort = port;
             }
         }
 
@@ -126,16 +154,16 @@ namespace Tayvey.Tools.TvSockets
         /// <returns></returns>
         public async Task ConnetAsync(string host, int port)
         {
-            if (_remoteIsConnected)
+            if (_isConnected)
             {
                 return;
             }
 
             await _socket.ConnectAsync(host, port);
 
-            _remoteIsConnected = true;
-            _remoteHost = host;
-            _remotePort = port;
+            _isConnected = true;
+            _serverHost = host;
+            _serverPort = port;
         }
 
         /// <summary>
@@ -143,7 +171,19 @@ namespace Tayvey.Tools.TvSockets
         /// </summary>
         /// <param name="buffer"></param>
         /// <returns></returns>
-        public int Send(byte[] buffer) => _socket.Send(buffer);
+        public int Send(byte[] buffer)
+        {
+            if (!SendAcquireThreadLock())
+            {
+                return 0;
+            }
+
+            var send = _socket.Send(buffer);
+
+            _isSending = false;
+
+            return send;
+        }
 
         /// <summary>
         /// 发送数据
@@ -163,28 +203,21 @@ namespace Tayvey.Tools.TvSockets
         /// </summary>
         /// <param name="buffer"></param>
         /// <returns></returns>
-        /// <exception cref="SocketException"></exception>
         public async Task<int> SendAsync(byte[] buffer)
         {
-            using var cancel = new CancellationTokenSource();
-            if (SendTimeout > 0)
+            if (!SendAcquireThreadLock())
             {
-                cancel.CancelAfter(TimeSpan.FromMilliseconds(SendTimeout));
+                return 0;
             }
 
 #if NET6_0_OR_GREATER
-            try
-            {
-                return await _socket.SendAsync(new ReadOnlyMemory<byte>(buffer), SocketFlags.None, cancel.Token).AsTask();
-            }
-            catch (OperationCanceledException)
-            {
-                throw new SocketException(10060);
-            }
+            var send = await _socket.SendAsync(new ReadOnlyMemory<byte>(buffer), SocketFlags.None, default);
+
+            _isSending = false;
+
+            return send;
 #else
             var tcs = new TaskCompletionSource<int>();
-            cancel.Token.Register(() => tcs.TrySetCanceled(cancel.Token));
-
             var sendArgs = new SocketAsyncEventArgs();
             sendArgs.SetBuffer(buffer, 0, buffer.Length);
             sendArgs.Completed += (s, e) =>
@@ -211,14 +244,11 @@ namespace Tayvey.Tools.TvSockets
                 }
             }
 
-            try
-            {
-                return await tcs.Task;
-            }
-            catch (OperationCanceledException)
-            {
-                throw new SocketException(10060);
-            }
+            var send = await tcs.Task;
+
+            _isSending = false;
+
+            return send;
 #endif
         }
 
@@ -250,12 +280,12 @@ namespace Tayvey.Tools.TvSockets
 #endif
             }
 
-            var buffer = new byte[_socket.ReceiveBufferSize];
-            var receive = _socket.Receive(buffer);
+            var buffer = new byte[_socket.Available];
+            _socket.Receive(buffer);
 
-            _isReceive = false;
+            _isReceiving = false;
 
-            return buffer.Take(receive).ToArray();
+            return buffer;
         }
 
         /// <summary>
@@ -264,7 +294,7 @@ namespace Tayvey.Tools.TvSockets
         /// <param name="escape"></param>
         /// <param name="encoding"></param>
         /// <returns></returns>
-        public string Receive(bool escape, Encoding ? encoding = null)
+        public string Receive(bool escape, Encoding? encoding = null)
         {
             encoding ??= Encoding.UTF8;
 
@@ -301,10 +331,10 @@ namespace Tayvey.Tools.TvSockets
 #endif
             }
 
-            var buffer = new byte[_socket.ReceiveBufferSize];
+            var buffer = new byte[_socket.Available];
 
 #if NET6_0_OR_GREATER
-            var receive = await _socket.ReceiveAsync(buffer, SocketFlags.None, default);
+            await _socket.ReceiveAsync(buffer, SocketFlags.None, default);
 #else
             var tcs = new TaskCompletionSource<int>();
             var sendArgs = new SocketAsyncEventArgs();
@@ -333,11 +363,11 @@ namespace Tayvey.Tools.TvSockets
                 }
             }
 
-            var receive = await tcs.Task;
+            await tcs.Task;
 #endif
-            _isReceive = false;
+            _isReceiving = false;
 
-            return buffer.Take(receive).ToArray();
+            return buffer;
         }
 
         /// <summary>
@@ -369,6 +399,30 @@ namespace Tayvey.Tools.TvSockets
         }
 
         /// <summary>
+        /// 获取发送数据线程锁
+        /// </summary>
+        /// <returns></returns>
+        private bool SendAcquireThreadLock()
+        {
+            lock (_sendLock)
+            {
+                while (_isSending)
+                {
+                }
+
+                if (!_socket.Poll(1000, SelectMode.SelectWrite))
+                {
+                    return false;
+                }
+                else
+                {
+                    _isSending = true;
+                    return true;
+                }
+            }
+        }
+
+        /// <summary>
         /// 获取接收数据线程锁
         /// </summary>
         /// <returns></returns>
@@ -376,13 +430,13 @@ namespace Tayvey.Tools.TvSockets
         {
             lock (_receiveLock)
             {
-                if (_isReceive || _socket.Available == 0)
+                if (_isReceiving || _socket.Available == 0)
                 {
                     return false;
                 }
                 else
                 {
-                    _isReceive = true;
+                    _isReceiving = true;
                     return true;
                 }
             }
