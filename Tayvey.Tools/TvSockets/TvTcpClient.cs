@@ -202,21 +202,36 @@ namespace Tayvey.Tools.TvSockets
         /// 发送数据
         /// </summary>
         /// <param name="buffer"></param>
-        /// <param name="token"></param>
         /// <returns></returns>
-        public ValueTask<int> SendAsync(byte[] buffer, CancellationToken token = default) => _socket.SendAsync(new ReadOnlyMemory<byte>(buffer), SocketFlags.None, token);
+        /// <exception cref="SocketException"></exception>
+        public async ValueTask<int> SendAsync(byte[] buffer)
+        {
+            try
+            {
+                using var source = new CancellationTokenSource();
+                if (SendTimeout > 0)
+                {
+                    source.CancelAfter(TimeSpan.FromMilliseconds(SendTimeout));
+                }
+
+                return await _socket.SendAsync(new ReadOnlyMemory<byte>(buffer), SocketFlags.None, source.Token);
+            }
+            catch (OperationCanceledException)
+            {
+                throw new SocketException(10060);
+            }
+        }
 
         /// <summary>
         /// 发送数据
         /// </summary>
         /// <param name="message"></param>
         /// <param name="encoding"></param>
-        /// <param name="token"></param>
         /// <returns></returns>
-        public ValueTask<int> SendStrAsync(string message, Encoding encoding, CancellationToken token = default)
+        public ValueTask<int> SendStrAsync(string message, Encoding encoding)
         {
             var buffer = encoding.GetBytes(message);
-            return SendAsync(buffer, token);
+            return SendAsync(buffer);
         }
 
         /// <summary>
@@ -247,20 +262,35 @@ namespace Tayvey.Tools.TvSockets
         /// 接收数据
         /// </summary>
         /// <param name="buffer"></param>
-        /// <param name="token"></param>
         /// <returns></returns>
-        public ValueTask<int> ReceiveAsync(byte[] buffer, CancellationToken token = default) => _socket.ReceiveAsync(buffer, SocketFlags.None, token);
+        /// <exception cref="SocketException"></exception>
+        public async ValueTask<int> ReceiveAsync(byte[] buffer)
+        {
+            try
+            {
+                using var source = new CancellationTokenSource();
+                if (ReceiveTimeout > 0)
+                {
+                    source.CancelAfter(TimeSpan.FromMilliseconds(ReceiveTimeout));
+                }
+
+                return await _socket.ReceiveAsync(buffer, SocketFlags.None, source.Token);
+            }
+            catch (OperationCanceledException)
+            {
+                throw new SocketException(10060);
+            }
+        }
 
         /// <summary>
         /// 接收数据
         /// </summary>
         /// <param name="buffer"></param>
         /// <param name="encoding"></param>
-        /// <param name="token"></param>
         /// <returns></returns>
-        public async ValueTask<string> ReceiveStrAsync(byte[] buffer, Encoding encoding, CancellationToken token = default)
+        public async ValueTask<string> ReceiveStrAsync(byte[] buffer, Encoding encoding)
         {
-            var receive = await ReceiveAsync(buffer, token);
+            var receive = await ReceiveAsync(buffer);
             if (receive == 0)
             {
                 return "";
@@ -331,7 +361,7 @@ namespace Tayvey.Tools.TvSockets
         /// <summary>
         /// 释放资源
         /// </summary>
-        public void Dispose()
+        public virtual void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
@@ -380,7 +410,7 @@ namespace Tayvey.Tools.TvSockets
         /// 释放资源
         /// </summary>
         /// <param name="dispose"></param>
-        protected virtual void Dispose(bool dispose)
+        private void Dispose(bool dispose)
         {
             lock (_disposeLock)
             {
@@ -393,6 +423,8 @@ namespace Tayvey.Tools.TvSockets
                 {
                     _socket.Close();
                 }
+
+                _disposed = true;
             }
         }
     }
