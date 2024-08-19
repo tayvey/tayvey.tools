@@ -2,7 +2,7 @@
 using System;
 using System.Net.Sockets;
 using System.Text;
-using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 #endif
 
@@ -11,7 +11,7 @@ namespace Tayvey.Tools.TvSockets
     /// <summary>
     /// TvTcp客户端
     /// </summary>
-    public class TvTcpClient
+    public class TvTcpClient : IDisposable
     {
         /// <summary>
         /// Socket
@@ -34,51 +34,58 @@ namespace Tayvey.Tools.TvSockets
         private int? _serverPort;
 
         /// <summary>
-        /// 连接锁
+        /// 重连锁
         /// </summary>
 #if NET6_0_OR_GREATER
-        private readonly object _connectLock = new();
+        private readonly object _reconnectLock = new();
 #else
-        private readonly object _connectLock = new object();
+        private readonly object _reconnectLock = new object();
 #endif
 
         /// <summary>
-        /// 是否已连接
+        /// 重连中
         /// </summary>
-        private bool _isConnected = false;
+        private bool _reconnecting = false;
 
         /// <summary>
-        /// 发送数据锁
+        /// 释放锁
         /// </summary>
 #if NET6_0_OR_GREATER
-        private readonly object _sendLock = new();
+        private readonly object _disposeLock = new();
 #else
-        private readonly object _sendLock = new object();
+        private readonly object _disposeLock = new object();
 #endif
 
         /// <summary>
-        /// 是否正在发送数据
+        /// 已释放
         /// </summary>
-        private bool _isSending = false;
+        private bool _disposed = false;
 
         /// <summary>
-        /// 同步接收数据锁
+        /// 是否连接中
         /// </summary>
-#if NET6_0_OR_GREATER
-        private readonly object _receiveLock = new();
-#else
-        private readonly object _receiveLock = new object();
-#endif
+        public bool Connected
+        {
+            get
+            {
+                if (_socket.Poll(1000, SelectMode.SelectRead) && _socket.Available == 0)
+                {
+                    return false;
+                }
+
+                return _socket.Connected;
+            }
+        }
 
         /// <summary>
-        /// 是否正在接收数据
+        /// 可读数据量
         /// </summary>
-        private bool _isReceiving = false;
+        public int Available => _socket.Available;
 
         /// <summary>
-        /// 是否保持连接
+        /// 保持连接
         /// </summary>
-        public bool IsKeepAlive
+        public bool KeepAlive
         {
             get
             {
@@ -97,7 +104,7 @@ namespace Tayvey.Tools.TvSockets
         public int SendBufferSize
         {
             get => _socket.SendBufferSize;
-            set => _socket.SendBufferSize = value < 1 ? 1 : value;
+            set => _socket.SendBufferSize = value;
         }
 
         /// <summary>
@@ -106,13 +113,26 @@ namespace Tayvey.Tools.TvSockets
         public int ReceiveBufferSize
         {
             get => _socket.ReceiveBufferSize;
-            set => _socket.ReceiveBufferSize = value < 1 ? 1 : value;
+            set => _socket.ReceiveBufferSize = value;
         }
 
         /// <summary>
-        /// 是否已断开连接
+        /// 发送超时（毫秒）
         /// </summary>
-        public bool IsDisconnected => _socket.Poll(1000, SelectMode.SelectError);
+        public int SendTimeout
+        {
+            get => _socket.SendTimeout;
+            set => _socket.SendTimeout = value;
+        }
+
+        /// <summary>
+        /// 接收超时（毫秒）
+        /// </summary>
+        public int ReceiveTimeout
+        {
+            get => _socket.ReceiveTimeout;
+            set => _socket.ReceiveTimeout = value;
+        }
 
         /// <summary>
         /// 初始化构造
@@ -125,25 +145,24 @@ namespace Tayvey.Tools.TvSockets
         }
 
         /// <summary>
+        /// 析构
+        /// </summary>
+        ~TvTcpClient()
+        {
+            Dispose(false);
+        }
+
+        /// <summary>
         /// 连接
         /// </summary>
         /// <param name="host"></param>
         /// <param name="port"></param>
-        public void Connet(string host, int port)
+        public void Connect(string host, int port)
         {
-            lock (_connectLock)
-            {
-                if (_isConnected)
-                {
-                    return;
-                }
+            _socket.Connect(host, port);
 
-                _socket.Connect(host, port);
-
-                _isConnected = true;
-                _serverHost = host;
-                _serverPort = port;
-            }
+            _serverHost = host;
+            _serverPort = port;
         }
 
         /// <summary>
@@ -152,16 +171,10 @@ namespace Tayvey.Tools.TvSockets
         /// <param name="host"></param>
         /// <param name="port"></param>
         /// <returns></returns>
-        public async Task ConnetAsync(string host, int port)
+        public async ValueTask ConnectAsync(string host, int port)
         {
-            if (_isConnected)
-            {
-                return;
-            }
-
             await _socket.ConnectAsync(host, port);
 
-            _isConnected = true;
             _serverHost = host;
             _serverPort = port;
         }
@@ -171,19 +184,7 @@ namespace Tayvey.Tools.TvSockets
         /// </summary>
         /// <param name="buffer"></param>
         /// <returns></returns>
-        public int Send(byte[] buffer)
-        {
-            if (!SendAcquireThreadLock())
-            {
-                return 0;
-            }
-
-            var send = _socket.Send(buffer);
-
-            _isSending = false;
-
-            return send;
-        }
+        public int Send(byte[] buffer) => _socket.Send(buffer);
 
         /// <summary>
         /// 发送数据
@@ -191,9 +192,8 @@ namespace Tayvey.Tools.TvSockets
         /// <param name="message"></param>
         /// <param name="encoding"></param>
         /// <returns></returns>
-        public int Send(string message, Encoding? encoding = null)
+        public int SendStr(string message, Encoding encoding)
         {
-            encoding ??= Encoding.UTF8;
             var buffer = encoding.GetBytes(message);
             return Send(buffer);
         }
@@ -202,242 +202,196 @@ namespace Tayvey.Tools.TvSockets
         /// 发送数据
         /// </summary>
         /// <param name="buffer"></param>
+        /// <param name="token"></param>
         /// <returns></returns>
-        public async Task<int> SendAsync(byte[] buffer)
-        {
-            if (!SendAcquireThreadLock())
-            {
-                return 0;
-            }
-
-#if NET6_0_OR_GREATER
-            var send = await _socket.SendAsync(new ReadOnlyMemory<byte>(buffer), SocketFlags.None, default);
-
-            _isSending = false;
-
-            return send;
-#else
-            var tcs = new TaskCompletionSource<int>();
-            var sendArgs = new SocketAsyncEventArgs();
-            sendArgs.SetBuffer(buffer, 0, buffer.Length);
-            sendArgs.Completed += (s, e) =>
-            {
-                if (e.SocketError == SocketError.Success)
-                {
-                    tcs.SetResult(e.BytesTransferred);
-                }
-                else
-                {
-                    tcs.SetException(new SocketException((int)e.SocketError));
-                }
-            };
-
-            if (!_socket.SendAsync(sendArgs))
-            {
-                if (sendArgs.SocketError == SocketError.Success)
-                {
-                    tcs.SetResult(sendArgs.BytesTransferred);
-                }
-                else
-                {
-                    tcs.SetException(new SocketException((int)sendArgs.SocketError));
-                }
-            }
-
-            var send = await tcs.Task;
-
-            _isSending = false;
-
-            return send;
-#endif
-        }
+        public ValueTask<int> SendAsync(byte[] buffer, CancellationToken token = default) => _socket.SendAsync(new ReadOnlyMemory<byte>(buffer), SocketFlags.None, token);
 
         /// <summary>
         /// 发送数据
         /// </summary>
         /// <param name="message"></param>
         /// <param name="encoding"></param>
+        /// <param name="token"></param>
         /// <returns></returns>
-        public Task<int> SendAsync(string message, Encoding? encoding = null)
+        public ValueTask<int> SendStrAsync(string message, Encoding encoding, CancellationToken token = default)
         {
-            encoding ??= Encoding.UTF8;
             var buffer = encoding.GetBytes(message);
-            return SendAsync(buffer);
+            return SendAsync(buffer, token);
         }
 
         /// <summary>
         /// 接收数据
         /// </summary>
+        /// <param name="buffer"></param>
         /// <returns></returns>
-        public byte[] Receive()
-        {
-            if (!ReceiveAcquireThreadLock())
-            {
-#if NET8_0_OR_GREATER
-                return [];
-#else
-                return Array.Empty<byte>();
-#endif
-            }
-
-            var buffer = new byte[_socket.Available];
-            _socket.Receive(buffer);
-
-            _isReceiving = false;
-
-            return buffer;
-        }
+        public int Receive(byte[] buffer) => _socket.Receive(buffer);
 
         /// <summary>
         /// 接收数据
         /// </summary>
-        /// <param name="escape"></param>
+        /// <param name="buffer"></param>
         /// <param name="encoding"></param>
         /// <returns></returns>
-        public string Receive(bool escape, Encoding? encoding = null)
+        public string ReceiveStr(byte[] buffer, Encoding encoding)
         {
-            encoding ??= Encoding.UTF8;
-
-            var buffer = Receive();
-            if (buffer.Length == 0)
+            var receive = Receive(buffer);
+            if (receive == 0)
             {
                 return "";
             }
 
-            var str = encoding.GetString(buffer);
-
-            if (escape)
-            {
-                return Regex.Escape(str);
-            }
-            else
-            {
-                return str;
-            }
+            return encoding.GetString(buffer);
         }
 
         /// <summary>
         /// 接收数据
         /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="token"></param>
         /// <returns></returns>
-        public async Task<byte[]> ReceiveAsync()
-        {
-            if (!ReceiveAcquireThreadLock())
-            {
-#if NET8_0_OR_GREATER
-                return [];
-#else
-                return Array.Empty<byte>();
-#endif
-            }
-
-            var buffer = new byte[_socket.Available];
-
-#if NET6_0_OR_GREATER
-            await _socket.ReceiveAsync(buffer, SocketFlags.None, default);
-#else
-            var tcs = new TaskCompletionSource<int>();
-            var sendArgs = new SocketAsyncEventArgs();
-            sendArgs.SetBuffer(buffer, 0, buffer.Length);
-            sendArgs.Completed += (s, e) =>
-            {
-                if (e.SocketError == SocketError.Success)
-                {
-                    tcs.SetResult(e.BytesTransferred);
-                }
-                else
-                {
-                    tcs.SetException(new SocketException((int)e.SocketError));
-                }
-            };
-
-            if (!_socket.ReceiveAsync(sendArgs))
-            {
-                if (sendArgs.SocketError == SocketError.Success)
-                {
-                    tcs.SetResult(sendArgs.BytesTransferred);
-                }
-                else
-                {
-                    tcs.SetException(new SocketException((int)sendArgs.SocketError));
-                }
-            }
-
-            await tcs.Task;
-#endif
-            _isReceiving = false;
-
-            return buffer;
-        }
+        public ValueTask<int> ReceiveAsync(byte[] buffer, CancellationToken token = default) => _socket.ReceiveAsync(buffer, SocketFlags.None, token);
 
         /// <summary>
         /// 接收数据
         /// </summary>
-        /// <param name="escape"></param>
+        /// <param name="buffer"></param>
         /// <param name="encoding"></param>
+        /// <param name="token"></param>
         /// <returns></returns>
-        public async Task<string> ReceiveAsync(bool escape, Encoding? encoding = null)
+        public async ValueTask<string> ReceiveStrAsync(byte[] buffer, Encoding encoding, CancellationToken token = default)
         {
-            encoding ??= Encoding.UTF8;
-
-            var buffer = await ReceiveAsync();
-            if (buffer.Length == 0)
+            var receive = await ReceiveAsync(buffer, token);
+            if (receive == 0)
             {
                 return "";
             }
 
-            var str = encoding.GetString(buffer);
+            return encoding.GetString(buffer);
+        }
 
-            if (escape)
+        /// <summary>
+        /// 重新连接
+        /// </summary>
+        public void Reconnect()
+        {
+            if (!AcquireReconnectLock())
             {
-                return Regex.Escape(str);
+                return;
             }
-            else
+
+            var newSocket = ReconnectGetNewSocket();
+
+            try
             {
-                return str;
+                newSocket.Connect(_serverHost!, _serverPort!.Value);
+
+                _socket.Close();
+                _socket = newSocket;
+            }
+            catch
+            {
+                newSocket.Close();
+            }
+            finally
+            {
+                _reconnecting = false;
             }
         }
 
         /// <summary>
-        /// 获取发送数据线程锁
+        /// 重新连接
         /// </summary>
         /// <returns></returns>
-        private bool SendAcquireThreadLock()
+        public async ValueTask ReconnectAsync()
         {
-            lock (_sendLock)
+            if (!AcquireReconnectLock())
             {
-                while (_isSending)
-                {
-                }
+                return;
+            }
 
-                if (!_socket.Poll(1000, SelectMode.SelectWrite))
-                {
-                    return false;
-                }
-                else
-                {
-                    _isSending = true;
-                    return true;
-                }
+            var newSocket = ReconnectGetNewSocket();
+
+            try
+            {
+                await newSocket.ConnectAsync(_serverHost!, _serverPort!.Value);
+
+                _socket.Close();
+                _socket = newSocket;
+            }
+            catch
+            {
+                newSocket.Close();
+            }
+            finally
+            {
+                _reconnecting = false;
             }
         }
 
         /// <summary>
-        /// 获取接收数据线程锁
+        /// 释放资源
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// 获取重新连接锁，防止重复重连
         /// </summary>
         /// <returns></returns>
-        private bool ReceiveAcquireThreadLock()
+        private bool AcquireReconnectLock()
         {
-            lock (_receiveLock)
+            lock (_reconnectLock)
             {
-                if (_isReceiving || _socket.Available == 0)
+                if (_reconnecting || Connected || string.IsNullOrWhiteSpace(_serverHost) || _serverPort == null)
                 {
                     return false;
                 }
-                else
+
+                _reconnecting = true;
+                return true;
+            }
+        }
+
+        /// <summary>
+        /// 重连获取新Socket
+        /// </summary>
+        /// <returns></returns>
+        private Socket ReconnectGetNewSocket()
+        {
+            var newSocket = new Socket(_socket.AddressFamily, _socket.SocketType, ProtocolType.Tcp);
+
+            if (_keepAlive)
+            {
+                newSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, _keepAlive);
+            }
+
+            newSocket.SendBufferSize = _socket.SendBufferSize;
+            newSocket.ReceiveBufferSize = _socket.ReceiveBufferSize;
+            newSocket.SendTimeout = _socket.SendTimeout;
+            newSocket.ReceiveTimeout = _socket.ReceiveTimeout;
+
+            return newSocket;
+        }
+
+        /// <summary>
+        /// 释放资源
+        /// </summary>
+        /// <param name="dispose"></param>
+        protected virtual void Dispose(bool dispose)
+        {
+            lock (_disposeLock)
+            {
+                if (_disposed)
                 {
-                    _isReceiving = true;
-                    return true;
+                    return;
+                }
+
+                if (dispose)
+                {
+                    _socket.Close();
                 }
             }
         }
