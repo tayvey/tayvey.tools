@@ -459,9 +459,43 @@ app.Run();
 
 ## Tcp 服务端/客户端
 
-### 服务端（重构中）
+### 服务端 TvTcpServer
 
-### 客户端
+```c#
+using Tayvey.Tools.TvSockets;
+
+// 创建TCP服务端
+using var server = new TvTcpServer
+{
+    KeepAlive = true, // 是否保持连接（默认false）
+    SendBufferSize = 32, // 发送缓存区大小（单位byte，默认8192）
+    ReceiveBufferSize = 32, // 接收缓存区大小（单位byte，默认8192）
+    SendTimeout = 5000, // 发送超时（单位ms，默认不限制）
+    ReceiveTimeout = 5000 // 接收超时（单位ms，默认不限制）
+};
+
+/*
+    绑定并监听
+    入参:
+        host: 绑定地址, 多个地址以','拼接
+        port: 绑定端口
+        backlog: 待处理连接队列的最大长度
+ */
+server.BindAndListen("0.0.0.0", 6666, 1);
+
+/*
+    接收连接
+    反参: 客户端TvTcpClient对象
+    注: 通过服务端接收连接获取到的 TvTcpClient 客户端, 使用重连将会无效
+ */
+TvTcpClient client = server.Accept();
+TvTcpClient client1 = await server.AcceptAsync();
+
+// 主动释放
+server.Dispose();
+```
+
+### 客户端 TvTcpClient
 
 ```c#
 using System;
@@ -478,30 +512,68 @@ using var tcpClient = new TvTcpClient
     ReceiveTimeout = 5000 // 接收超时（单位ms，默认不限制）
 };
 
-tcpClient.Connect("127.0.0.1", 6666); // 连接
-await tcpClient.ConnectAsync("127.0.0.1", 6666); // 异步连接
+/*
+    连接
+    入参:
+        host: 远程主机地址
+        port: 远程主机端口
+ */
+tcpClient.Connect("0.0.0.0", 6666);
+await tcpClient.ConnectAsync("0.0.0.0", 6666);
 
-int send1 = tcpClient.Send(new byte[] { 1,2,3 }); // 发送字节数据
-int send2 = tcpClient.SendStr("123", Encoding.UTF8); // 发送字符数据
-int send3 = await tcpClient.SendAsync(new byte[] { 1, 2, 3 }); // 异步发送字节数据
-int send4 = await tcpClient.SendStrAsync("123", Encoding.UTF8); // 异步发送字符数据
+/*
+    发送字节数据
+    入参:
+    	buffer: 字节数据
+    反参: 成功发送的字节数量
+ */
+int send1 = tcpClient.Send(new byte[] { 1,2,3 });
+int send2 = await tcpClient.SendAsync(new byte[] { 1, 2, 3 });
+
+/*
+    发送字符数据
+    入参:
+        message: 字符数据
+        encoding: 字符编码格式
+    反参: 成功发送的字节数量
+ */
+int send3 = tcpClient.SendStr("123", Encoding.UTF8);
+int send4 = await tcpClient.SendStrAsync("123", Encoding.UTF8);
 
 // 可读数据量
 if (tcpClient.Available > 0)
 {
     var buffer = new byte[tcpClient.Available];
 
-    int receive1 = tcpClient.Receive(buffer); // 接收数据
-    string receive2 = tcpClient.ReceiveStr(buffer, Encoding.UTF8); // 接收字符数据
-    int receive3 = await tcpClient.ReceiveAsync(buffer); // 异步接收数据
-    string receive4 = await tcpClient.ReceiveStrAsync(buffer, Encoding.UTF8); // 异步接收字符数据
+    /*
+        接收数据
+        入参:
+            buffer: 接收载体
+        反参: 成功接收的字节数量
+     */
+    int receive1 = tcpClient.Receive(buffer);
+    int receive2 = await tcpClient.ReceiveAsync(buffer);
+    
+    /*
+        接收数据字符串
+        入参:
+            buffer: 接收载体
+            encoding: 字符编码格式
+        反参: 数据字符串
+     */
+    string receive3 = tcpClient.ReceiveStr(buffer, Encoding.UTF8);
+    string receive4 = await tcpClient.ReceiveStrAsync(buffer, Encoding.UTF8);
 }
 
-// 连接断开（非实时状态，在连接、发送、接收完成后更新）
+/*
+    连接断开
+    注: 非实时状态. 状态在连接、发送、接收完成后更新
+ */
 if (!tcpClient.Connected)
 {
-    tcpClient.Reconnect(); // 重新连接
-    await tcpClient.ReconnectAsync(); // 异步重新连接
+    // 重新连接
+    tcpClient.Reconnect();
+    await tcpClient.ReconnectAsync();
 }
 
 // 主动释放

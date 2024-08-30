@@ -145,6 +145,15 @@ namespace Tayvey.Tools.TvSockets
         }
 
         /// <summary>
+        /// 初始化构造
+        /// </summary>
+        /// <param name="client"></param>
+        public TvTcpClient(Socket client)
+        {
+            _socket = client;
+        }
+
+        /// <summary>
         /// 析构
         /// </summary>
         ~TvTcpClient()
