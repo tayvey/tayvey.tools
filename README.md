@@ -457,84 +457,127 @@ app.MapControllers();
 app.Run();
 ```
 
-## Socekt 服务端/客户端
+## Tcp 服务端/客户端
 
-### 启动&停止服务端
+### 服务端 TvTcpServer
 
 ```c#
 using Tayvey.Tools.TvSockets;
 
-// 创建服务端对象, TCP协议
-var server = new TvSocketServer(ProtocolType.Tcp)
+// 创建TCP服务端
+using var server = new TvTcpServer
 {
-    MaxConnections = 1024, // 客户端最大连接数量
-    SendBufferSize = 1024, // 发送缓存区大小 (字节)
-    ReceiveBufferSize = 1024, // 接受缓存区大小 (字节)
-    CustomLogging = log => // 自定义日常处理 (异步)
-    {
-        return Task.CompletedTask;
-    },
-    DisposeCallBack = server => // 服务端停止&释放回调函数
-    {
-        return Task.CompletedTask;
-    },
-    ReceiveCallBack = receive => // 接收客户端发来的数据回调函数, 返回粘包数据字符串
-    {
-        return Task.FromResult("");
-    }
+    KeepAlive = true, // 是否保持连接（默认false）
+    SendBufferSize = 32, // 发送缓存区大小（单位byte，默认8192）
+    ReceiveBufferSize = 32, // 接收缓存区大小（单位byte，默认8192）
+    SendTimeout = 5000, // 发送超时（单位ms，默认不限制）
+    ReceiveTimeout = 5000 // 接收超时（单位ms，默认不限制）
 };
 
-// 启动服务端 绑定IP地址&端口号
-if (await server.StartAsync("127.0.0.1", 6666))
-{
-    // 启动成功
-}
-else
-{
-    // 启动失败|异常
-}
+/*
+    绑定并监听
+    入参:
+        host: 绑定地址, 多个地址以','拼接
+        port: 绑定端口
+        backlog: 待处理连接队列的最大长度
+ */
+server.BindAndListen("0.0.0.0", 6666, 1);
 
-// 停止服务端
-await server.StopAsync();
+/*
+    接收连接
+    反参: 客户端TvTcpClient对象
+    注: 通过服务端接收连接获取到的 TvTcpClient 客户端, 使用重连将会无效
+ */
+TvTcpClient client = server.Accept();
+TvTcpClient client1 = await server.AcceptAsync();
+
+// 主动释放
+server.Dispose();
 ```
 
-### 启动&停止客户端
+### 客户端 TvTcpClient
 
 ```c#
+using System;
+using System.Text;
 using Tayvey.Tools.TvSockets;
 
-// 创建客户端对象, TCP协议
-var client = new TvSocketClient(ProtocolType.Tcp)
+// 创建TCP客户端
+using var tcpClient = new TvTcpClient
 {
-    SendBufferSize = 1024, // 发送缓存区大小 (字节)
-    ReceiveBufferSize = 1024, // 接受缓存区大小 (字节)
-    CustomLogging = log => // 自定义日常处理 (异步)
-    {
-        return Task.CompletedTask;
-    },
-    DisposeCallBack = server => // 客户端停止&释放回调函数
-    {
-        return Task.CompletedTask;
-    },
-    ReceiveCallBack = receive => // 接收服务端发来的数据回调函数, 返回粘包数据字符串
-    {
-        return Task.FromResult("");
-    }
+    KeepAlive = true, // 是否保持连接（默认false）
+    SendBufferSize = 1, // 发送缓存区大小（单位byte，默认8192）
+    ReceiveBufferSize = 1, // 接收缓存区大小（单位byte，默认8192）
+    SendTimeout = 5000, // 发送超时（单位ms，默认不限制）
+    ReceiveTimeout = 5000 // 接收超时（单位ms，默认不限制）
 };
 
-// 启动客户端 连接到IP地址&端口号
-if (await client.StartAsync("127.0.0.1", 6666))
+/*
+    连接
+    入参:
+        host: 远程主机地址
+        port: 远程主机端口
+ */
+tcpClient.Connect("0.0.0.0", 6666);
+await tcpClient.ConnectAsync("0.0.0.0", 6666);
+
+/*
+    发送字节数据
+    入参:
+    	buffer: 字节数据
+    反参: 成功发送的字节数量
+ */
+int send1 = tcpClient.Send(new byte[] { 1,2,3 });
+int send2 = await tcpClient.SendAsync(new byte[] { 1, 2, 3 });
+
+/*
+    发送字符数据
+    入参:
+        message: 字符数据
+        encoding: 字符编码格式
+    反参: 成功发送的字节数量
+ */
+int send3 = tcpClient.SendStr("123", Encoding.UTF8);
+int send4 = await tcpClient.SendStrAsync("123", Encoding.UTF8);
+
+// 可读数据量
+if (tcpClient.Available > 0)
 {
-    // 启动成功 开始接收数据
-    await client.BeginReceiveAsync();
-}
-else
-{
-    // 启动失败|异常
+    var buffer = new byte[tcpClient.Available];
+
+    /*
+        接收数据
+        入参:
+            buffer: 接收载体
+        反参: 成功接收的字节数量
+     */
+    int receive1 = tcpClient.Receive(buffer);
+    int receive2 = await tcpClient.ReceiveAsync(buffer);
+    
+    /*
+        接收数据字符串
+        入参:
+            buffer: 接收载体
+            encoding: 字符编码格式
+        反参: 数据字符串
+     */
+    string receive3 = tcpClient.ReceiveStr(buffer, Encoding.UTF8);
+    string receive4 = await tcpClient.ReceiveStrAsync(buffer, Encoding.UTF8);
 }
 
-// 停止客户端
-await client.StopAsync();
+/*
+    连接断开
+    注: 非实时状态. 状态在连接、发送、接收完成后更新
+ */
+if (!tcpClient.Connected)
+{
+    // 重新连接
+    tcpClient.Reconnect();
+    await tcpClient.ReconnectAsync();
+}
+
+// 主动释放
+tcpClient.Dispose();
 ```
 
 ## Swagger
