@@ -42,7 +42,7 @@ namespace Tayvey.Tools.TvRedises
             }
 
             // 并行
-            var redisConfigPq = TvConfig.Options.TvMongo.AsParallel();
+            var redisConfigPq = TvConfig.Options.TvRedis.AsParallel();
 
             // 检查有没有重复的key
             var allKeys = redisConfigPq.Select(i => i.Key).ToList();
