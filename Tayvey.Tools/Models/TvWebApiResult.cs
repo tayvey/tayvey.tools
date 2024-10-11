@@ -11,40 +11,50 @@ namespace Tayvey.Tools.Models
     /// <summary>
     /// WebApi返回对象
     /// </summary>
-    public class WebApiResult<T> : IActionResult
+    public class TvWebApiResult : IActionResult
     {
         /// <summary>
-        /// 返回状态码
+        /// 响应头
         /// </summary>
-        public ApiStatus Status { get; private set; }
+        [JsonIgnore]
+        public Dictionary<string, string>? Header { get; set; }
 
         /// <summary>
-        /// 返回消息
+        /// 相应类型
+        /// </summary>
+        [JsonIgnore]
+        public string? ContentType { get; set; }
+
+        /// <summary>
+        /// 状态码
+        /// </summary>
+        public TvApiStatus Status { get; private set; }
+
+        /// <summary>
+        /// 消息
         /// </summary>
         public string Message { get; private set; }
 
         /// <summary>
-        /// 响应头
+        /// 数据量
         /// </summary>
-        //[JsonIgnore]
-        public Dictionary<string, string> Header { get; set; }
+        public long? Total { get; set; }
 
         /// <summary>
-        /// 初始化构造
+        /// 数据
+        /// </summary>
+        public object? Data { get; set; }
+
+        /// <summary>
+        /// 初始化
         /// </summary>
         /// <param name="status"></param>
         /// <param name="message"></param>
-        public WebApiResult(ApiStatus status, string message, Dictionary<string, string>? header = null) 
+        public TvWebApiResult(TvApiStatus status, string message)
         {
             Status = status;
             Message = message;
-            Header = (header ??= new Dictionary<string, string>());
         }
-
-        /// <summary>
-        /// 私有空构造
-        /// </summary>
-        private WebApiResult() { }
 
         /// <summary>
         /// WebApi返回处理
@@ -54,15 +64,24 @@ namespace Tayvey.Tools.Models
         public Task ExecuteResultAsync(ActionContext context)
         {
             var response = context.HttpContext.Response;
-            response.ContentType = "application/json; charset=utf-8";
+
+            // 设置常规响应头
             response.StatusCode = Status.GetHashCode();
-            response.Headers["Server"] = "";
-
-            Parallel.ForEach(Header, header =>
+            if (!string.IsNullOrWhiteSpace(ContentType))
             {
-                response.Headers[header.Key] = header.Value;
-            });
+                response.ContentType = ContentType;
+            }
 
+            // 设置自定义响应头
+            if (Header != null && Header.Count > 0)
+            {
+                Parallel.ForEach(Header, header =>
+                {
+                    response.Headers[header.Key] = header.Value;
+                });
+            }
+
+            // 返回
             return response.WriteAsync(JsonConvert.SerializeObject(this, new JsonSerializerSettings
             {
                 ContractResolver = new CamelCasePropertyNamesContractResolver(), // 首字母小写

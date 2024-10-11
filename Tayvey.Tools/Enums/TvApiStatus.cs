@@ -1,7 +1,7 @@
-﻿namespace Tayvey.Tools.TvApiResults.Enums
+﻿namespace Tayvey.Tools.Enums
 {
     /// <summary>
-    /// TvApi状态码
+    /// API状态码枚举
     /// </summary>
     public enum TvApiStatus
     {
