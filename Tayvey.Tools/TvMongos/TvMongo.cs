@@ -95,7 +95,7 @@ namespace Tayvey.Tools.TvMongos
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
         public static IMongoCollection<T> GetCollection<T>(string dbName, string collectionName = "", string key = "")
-            where T : TvMongoDataBase
+            where T : class, new()
         {
             // 无服务异常
             if (ClientDict.Value.Count == 0)
