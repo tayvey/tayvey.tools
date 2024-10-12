@@ -5,18 +5,18 @@ using System.Reflection;
 using Tayvey.Tools.Attributes;
 using Tayvey.Tools.Enums;
 
-namespace Tayvey.Tools
+namespace Tayvey.Tools.Extension
 {
     /// <summary>
-    /// 自动依赖注入
+    /// 自动依赖注入扩展
     /// </summary>
-    public static class TvAutoDI
+    public static class TvAutoDIEx
     {
         /// <summary>
-        /// 添加Tv自动依赖注入
+        /// 添加自动依赖注入服务
         /// </summary>
-        /// <param name="service"></param>
-        public static void AddTvAutoDI(this IServiceCollection service)
+        /// <param name="services"></param>
+        public static void AddTvAutoDI(this IServiceCollection services)
         {
             // 获取自动依赖注入的类
             var list = AppDomain.CurrentDomain.GetAssemblies()
@@ -43,17 +43,17 @@ namespace Tayvey.Tools
             {
                 if (lc == TvAutoDILifeCycle.Scoped)
                 {
-                    service.AddScoped(c, i);
+                    services.AddScoped(c, i);
                     continue;
                 }
 
                 if (lc == TvAutoDILifeCycle.Singleton)
                 {
-                    service.AddSingleton(c, i);
+                    services.AddSingleton(c, i);
                     continue;
                 }
 
-                service.AddTransient(c, i);
+                services.AddTransient(c, i);
             }
         }
     }

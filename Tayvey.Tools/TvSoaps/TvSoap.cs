@@ -8,8 +8,11 @@
 //using System.Reflection;
 //using System.ServiceModel;
 //using System.ServiceModel.Channels;
+//using Tayvey.Tools.Service;
 //using Tayvey.Tools.TvConfigs;
 //#endif
+
+//using Tayvey.Tools.Service;
 
 //namespace Tayvey.Tools.TvSoaps
 //{

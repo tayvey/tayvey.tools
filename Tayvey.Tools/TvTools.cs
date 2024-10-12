@@ -2,6 +2,7 @@
 //using Microsoft.AspNetCore.Builder;
 //using Microsoft.Extensions.Configuration;
 //using Microsoft.Extensions.DependencyInjection;
+//using Tayvey.Tools.Service;
 //using Tayvey.Tools.TvAutoDIs;
 //using Tayvey.Tools.TvConfigs;
 //using Tayvey.Tools.TvMiddlewares;
@@ -9,6 +10,9 @@
 //using Tayvey.Tools.TvSwaggers;
 //using Tayvey.Tools.TvTimedTasks;
 //#endif
+
+//using Tayvey.Tools.Service;
+//using Tayvey.Tools.Extension;
 
 //namespace Tayvey.Tools
 //{

@@ -3,7 +3,7 @@ using System.IO;
 using Tayvey.Tools.Enums;
 using Tayvey.Tools.Models;
 
-namespace Tayvey.Tools
+namespace Tayvey.Tools.Service
 {
     /// <summary>
     /// 基础控制器

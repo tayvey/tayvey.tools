@@ -1,22 +1,27 @@
-﻿//#if NETSTANDARD2_1
-//using MongoDB.Bson;
-//using MongoDB.Driver;
-//using System;
-//using System.Collections.Generic;
-//using System.Linq;
-//using System.Reflection;
-//using Tayvey.Tools.TvConfigs;
-//using Tayvey.Tools.TvMongos.Attrs;
-//using Tayvey.Tools.TvMongos.Models;
-//#endif
-
-//namespace Tayvey.Tools.TvMongos
+﻿//namespace Tayvey.Tools.Service
 //{
 //    /// <summary>
-//    /// TvMongo
+//    /// MONGODB
 //    /// </summary>
-//    public static class TvMongo
+//    public class TvMongo
 //    {
+//        public TvMongo()
+//        {
+
+//        }
+
+
+
+
+
+
+
+
+
+
+
+
+
 //        /// <summary>
 //        /// 连接字典
 //        /// </summary>
