@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Tayvey.Tools.Attributes;
 
-namespace Tayvey.Tools.Extension
+namespace Tayvey.Tools.Extensions
 {
     /// <summary>
     /// 自动注册中间件扩展

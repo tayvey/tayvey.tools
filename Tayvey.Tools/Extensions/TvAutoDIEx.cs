@@ -5,7 +5,7 @@ using System.Reflection;
 using Tayvey.Tools.Attributes;
 using Tayvey.Tools.Enums;
 
-namespace Tayvey.Tools.Extension
+namespace Tayvey.Tools.Extensions
 {
     /// <summary>
     /// 自动依赖注入扩展

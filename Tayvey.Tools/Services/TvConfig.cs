@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
-using Tayvey.Tools.Interface;
+using Tayvey.Tools.Interfaces;
 
-namespace Tayvey.Tools.Service
+namespace Tayvey.Tools.Services
 {
     /// <summary>
     /// 系统配置

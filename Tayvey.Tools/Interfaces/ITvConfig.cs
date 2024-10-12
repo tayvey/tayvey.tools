@@ -1,4 +1,4 @@
-﻿namespace Tayvey.Tools.Interface
+﻿namespace Tayvey.Tools.Interfaces
 {
     /// <summary>
     /// 系统配置接口

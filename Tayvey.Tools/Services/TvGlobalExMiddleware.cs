@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Tayvey.Tools.Enums;
 using Tayvey.Tools.Models;
 
-namespace Tayvey.Tools.Service
+namespace Tayvey.Tools.Services
 {
     /// <summary>
     /// 全局异常处理中间件

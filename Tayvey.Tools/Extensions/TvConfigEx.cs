@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Tayvey.Tools.Interface;
-using Tayvey.Tools.Service;
+using Tayvey.Tools.Interfaces;
+using Tayvey.Tools.Services;
 
-namespace Tayvey.Tools.Extension
+namespace Tayvey.Tools.Extensions
 {
     /// <summary>
     /// 系统配置扩展

@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Tayvey.Tools.Models;
 
-namespace Tayvey.Tools.Extension
+namespace Tayvey.Tools.Extensions
 {
     /// <summary>
     /// EXCEL文件操作扩展

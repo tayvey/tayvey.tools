@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using System;
-using Tayvey.Tools.Service;
+using Tayvey.Tools.Services;
 
-namespace Tayvey.Tools.Extension
+namespace Tayvey.Tools.Extensions
 {
     /// <summary>
     /// 全局异常处理中间件扩展
