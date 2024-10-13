@@ -32,6 +32,9 @@ namespace Tayvey.Tools.Services
                 throw new Exception($"MONGODB初始化异常. 存在重复KEY. [{config.Key}]");
             }
 
+            // 过滤无效KEY
+            configs = configs.Where(i => !string.IsNullOrWhiteSpace(i.Key)).ToArray();
+
             // 创建连接
             _clients = configs.Select(config =>
             {
