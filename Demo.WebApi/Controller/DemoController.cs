@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Demo.WebApi.Controller
 {
+    /// <summary>
+    /// DEMO
+    /// </summary>
     [ApiController]
     [Route("[Controller]/[Action]")]
     public class DemoController : ControllerBase

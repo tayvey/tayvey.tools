@@ -21,19 +21,15 @@ namespace Tayvey.Tools.Extensions
         {
             foreach (var (autoDI, lc, i) in GetAutoDIs())
             {
-                if (lc == TvAutoDILifeCycle.Scoped)
+                _ = lc switch
                 {
-                    services.AddScoped(autoDI, i);
-                    continue;
-                }
-
-                if (lc == TvAutoDILifeCycle.Singleton)
-                {
-                    services.AddSingleton(autoDI, i);
-                    continue;
-                }
-
-                services.AddTransient(autoDI, i);
+                    TvAutoDILifeCycle.Scoped when i == null => services.AddScoped(autoDI),
+                    TvAutoDILifeCycle.Scoped when i != null => services.AddScoped(i, autoDI),
+                    TvAutoDILifeCycle.Singleton when i == null => services.AddSingleton(autoDI),
+                    TvAutoDILifeCycle.Singleton when i != null => services.AddSingleton(i, autoDI),
+                    _ when i == null => services.AddTransient(autoDI),
+                    _ => services.AddTransient(i, autoDI),
+                };
             }
         }
 
@@ -41,9 +37,9 @@ namespace Tayvey.Tools.Extensions
         /// 获取自动依赖注入的服务
         /// </summary>
         /// <returns></returns>
-        private static List<(Type autoDI, TvAutoDILifeCycle lifeCycle, Type i)> GetAutoDIs()
+        private static List<(Type autoDI, TvAutoDILifeCycle lifeCycle, Type? i)> GetAutoDIs()
         {
-            var result = new List<(Type autoDI, TvAutoDILifeCycle lifeCycle, Type i)>();
+            var result = new List<(Type autoDI, TvAutoDILifeCycle lifeCycle, Type? i)>();
 
             foreach (var loadedType in TvAssemblyEx.LoadedTypes)
             {
@@ -57,7 +53,14 @@ namespace Tayvey.Tools.Extensions
                 var baseInterfaces = allInterfaces.AsParallel().SelectMany(x => x.GetInterfaces());
                 var interfaces = allInterfaces.Except(baseInterfaces).ToList();
 
-                result.AddRange(allInterfaces.Except(baseInterfaces).Select(i => (loadedType, attr._lifeCycle, i)));
+                if (interfaces.Count == 0)
+                {
+                    result.Add((loadedType, attr._lifeCycle, null));
+                }
+                else
+                {
+                    result.AddRange(interfaces.Select(i => (loadedType, attr._lifeCycle, (Type?)i)));
+                }
             }
 
             return result;
