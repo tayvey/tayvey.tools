@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Builder;
+using System.Collections.Generic;
 using System;
 using System.Linq;
 using System.Reflection;
@@ -18,45 +19,38 @@ namespace Tayvey.Tools.Extensions
         /// <param name="marks"></param>
         public static void UseTvAutoMw(this IApplicationBuilder app, params string[] marks)
         {
-            // 获取自动注册的中间件
-            var list = AppDomain.CurrentDomain.GetAssemblies()
-                .AsParallel()
-                .Select(i => i.GetTypes())
-                .SelectMany(i => i)
-                .Where(i => i.IsClass && !i.IsAbstract && i.GetCustomAttribute<TvAutoMwAttribute>() != null)
-                .Select(i =>
-                {
-                    var attr = i.GetCustomAttribute<TvAutoMwAttribute>()!;
-
-                    if (attr._marks.Length == 0)
-                    {
-                        return new
-                        {
-                            Mw = i,
-                            Sort = attr._sort
-                        };
-                    }
-
-                    if (!marks.Any(x => attr._marks.Contains(x)))
-                    {
-                        return null;
-                    }
-
-                    return new
-                    {
-                        Mw = i,
-                        Sort = attr._sort
-                    };
-                })
-                .Where(i => i != null)
-                .Select(i => i!)
-                .ToList();
-
             // 遍历注册中间件
-            foreach (var item in list.OrderByDescending(i => i.Sort).ToList())
+            foreach (var (middleware, _) in GetMiddlewares(marks).OrderByDescending(i => i.sort))
             {
-                app.UseMiddleware(item.Mw);
+                app.UseMiddleware(middleware);
             }
+        }
+
+        /// <summary>
+        /// 获取自动注册的中间件
+        /// </summary>
+        /// <returns></returns>
+        private static List<(Type middleware, uint sort)> GetMiddlewares(string[] marks)
+        {
+            var result = new List<(Type middleware, uint sort)>();
+
+            foreach (var loadedType in TvAssemblyEx.LoadedTypes)
+            {
+                var attr = loadedType.GetCustomAttribute<TvAutoMwAttribute>();
+                if (!loadedType.IsClass || loadedType.IsAbstract || attr == null)
+                {
+                    continue;
+                }
+
+                if (attr._marks.Length > 0 && !marks.Any(x => attr._marks.Contains(x)))
+                {
+                    continue;
+                }
+
+                result.Add((loadedType, attr._sort));
+            }
+
+            return result;
         }
     }
 }

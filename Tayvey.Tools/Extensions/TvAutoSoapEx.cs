@@ -2,8 +2,10 @@
 using Microsoft.Extensions.DependencyInjection;
 using SoapCore;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.ServiceModel;
 using System.ServiceModel.Channels;
 using Tayvey.Tools.Attributes;
 using Tayvey.Tools.Enums;
@@ -33,63 +35,104 @@ namespace Tayvey.Tools.Extensions
         public static void UseTvSoap(this IApplicationBuilder app, params string[] marks)
         {
             // 获取自动注册的SOAP
-            var list = AppDomain.CurrentDomain.GetAssemblies()
-                .AsParallel()
-                .Select(i => i.GetTypes())
-                .SelectMany(i => i)
-                .Where(i => i.IsClass && !i.IsAbstract && i.GetCustomAttribute<TvAutoSoapAttribute>() != null)
-                .Select(i =>
-                {
-                    var attr = i.GetCustomAttribute<TvAutoSoapAttribute>()!;
-
-                    if (attr._marks.Length == 0)
-                    {
-                        return new
-                        {
-                            Soap = i,
-                            Version = attr._version,
-                            Url = attr._url
-                        };
-                    }
-
-                    if (!marks.Any(x => attr._marks.Contains(x)))
-                    {
-                        return null;
-                    }
-
-                    return new
-                    {
-                        Soap = i,
-                        Version = attr._version,
-                        Url = attr._url
-                    };
-                })
-                .Where(i => i != null)
-                .Select(i => i!)
-                .ToList();
+            var autoSoaps = GetAutoSoapInterfaces(marks);
+            autoSoaps.AddRange(GetAutoSoapClasses(marks));
 
             // 检查是否存在重复URL
-            var item = list.GroupBy(i => i.Url).FirstOrDefault(i => i.Count() > 1);
-            if (item != null)
+            var autoSoap = autoSoaps.GroupBy(i => i.url).FirstOrDefault(i => i.Count() > 1);
+            if (autoSoap != null)
             {
-                throw new Exception($"SOAP初始化异常. 存在重复URL. [{item.Key}]");
+                throw new Exception($"SOAP初始化异常. 存在重复URL. [{autoSoap.Key}]");
             }
 
-            // 过滤无效URL
-            list = list.Where(i => !string.IsNullOrWhiteSpace(i.Url)).ToList();
-
             // 遍历注册SOAP
-            foreach (var config in list)
+            foreach (var (curAutoSoap, version, url) in autoSoaps)
             {
-                app.UseSoapEndpoint(config.Soap, config.Url, new SoapEncoderOptions
+                app.UseSoapEndpoint(curAutoSoap, url, new SoapEncoderOptions
                 {
-                    MessageVersion = config.Version switch
+                    MessageVersion = version switch
                     {
                         TvAutoSoapVersion.Soap11 => MessageVersion.Soap11WSAddressingAugust2004,
                         _ => MessageVersion.Soap12WSAddressingAugust2004
                     }
                 }, caseInsensitivePath: true);
             }
+        }
+
+        /// <summary>
+        /// 获取自动注册的SOAP接口
+        /// </summary>
+        /// <param name="marks"></param>
+        /// <returns></returns>
+        private static List<(Type autoSoap, TvAutoSoapVersion version, string url)> GetAutoSoapInterfaces(string[] marks)
+        {
+            var result = new List<(Type, TvAutoSoapVersion, string)>();
+
+            foreach (var loadedType in TvAssemblyEx.LoadedTypes)
+            {
+                var autoSoapAttr = loadedType.GetCustomAttribute<TvAutoSoapAttribute>();
+                var serviceContractAttr = loadedType.GetCustomAttribute<ServiceContractAttribute>();
+                if (!loadedType.IsInterface || autoSoapAttr == null || serviceContractAttr == null)
+                {
+                    continue;
+                }
+
+                if (autoSoapAttr._marks.Length > 0 && !marks.Any(x => autoSoapAttr._marks.Contains(x)))
+                {
+                    continue;
+                }
+
+                if (string.IsNullOrWhiteSpace(autoSoapAttr._url))
+                {
+                    continue;
+                }
+
+                result.Add((loadedType, autoSoapAttr._version, autoSoapAttr._url));
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// 获取自动注册的SOAP类
+        /// </summary>
+        /// <param name="marks"></param>
+        /// <returns></returns>
+        private static List<(Type autoSoap, TvAutoSoapVersion version, string url)> GetAutoSoapClasses(string[] marks)
+        {
+            var result = new List<(Type, TvAutoSoapVersion, string)>();
+
+            foreach (var loadedType in TvAssemblyEx.LoadedTypes)
+            {
+                var autoSoapAttr = loadedType.GetCustomAttribute<TvAutoSoapAttribute>();
+                var serviceContractAttr = loadedType.GetCustomAttribute<ServiceContractAttribute>();
+                if (!loadedType.IsClass || loadedType.IsAbstract || autoSoapAttr == null || serviceContractAttr == null)
+                {
+                    continue;
+                }
+
+                if (autoSoapAttr._marks.Length > 0 && !marks.Any(x => autoSoapAttr._marks.Contains(x)))
+                {
+                    continue;
+                }
+
+                if (string.IsNullOrWhiteSpace(autoSoapAttr._url))
+                {
+                    continue;
+                }
+
+                var allInterfaces = loadedType.GetInterfaces();
+                var baseInterfaces = allInterfaces.AsParallel().SelectMany(x => x.GetInterfaces());
+                var interfaces = allInterfaces.Except(baseInterfaces).ToList();
+                if (interfaces.Count > 0)
+                {
+                    continue;
+                }
+
+                result.Add((loadedType, autoSoapAttr._version, autoSoapAttr._url));
+            }
+
+            return result;
         }
     }
 }

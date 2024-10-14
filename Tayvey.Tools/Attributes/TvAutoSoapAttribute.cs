@@ -6,7 +6,7 @@ namespace Tayvey.Tools.Attributes
     /// <summary>
     /// 自动注册SOAP特性
     /// </summary>
-    [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
     public class TvAutoSoapAttribute : Attribute
     {
         /// <summary>
