@@ -9,6 +9,7 @@ using System.ServiceModel;
 using System.ServiceModel.Channels;
 using Tayvey.Tools.Attributes;
 using Tayvey.Tools.Enums;
+using Tayvey.Tools.Helpers;
 
 namespace Tayvey.Tools.Extensions
 {
@@ -68,7 +69,7 @@ namespace Tayvey.Tools.Extensions
         {
             var result = new List<(Type, TvAutoSoapVersion, string)>();
 
-            foreach (var loadedType in TvAssemblyEx.LoadedTypes)
+            foreach (var loadedType in TvAssembly.GetLoadedAssemblies())
             {
                 var autoSoapAttr = loadedType.GetCustomAttribute<TvAutoSoapAttribute>();
                 var serviceContractAttr = loadedType.GetCustomAttribute<ServiceContractAttribute>();
@@ -102,7 +103,7 @@ namespace Tayvey.Tools.Extensions
         {
             var result = new List<(Type, TvAutoSoapVersion, string)>();
 
-            foreach (var loadedType in TvAssemblyEx.LoadedTypes)
+            foreach (var loadedType in TvAssembly.GetLoadedAssemblies())
             {
                 var autoSoapAttr = loadedType.GetCustomAttribute<TvAutoSoapAttribute>();
                 var serviceContractAttr = loadedType.GetCustomAttribute<ServiceContractAttribute>();

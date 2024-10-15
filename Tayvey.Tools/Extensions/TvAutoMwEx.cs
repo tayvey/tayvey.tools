@@ -4,6 +4,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using Tayvey.Tools.Attributes;
+using Tayvey.Tools.Helpers;
 
 namespace Tayvey.Tools.Extensions
 {
@@ -34,7 +35,7 @@ namespace Tayvey.Tools.Extensions
         {
             var result = new List<(Type middleware, uint sort)>();
 
-            foreach (var loadedType in TvAssemblyEx.LoadedTypes)
+            foreach (var loadedType in TvAssembly.GetLoadedAssemblies())
             {
                 var attr = loadedType.GetCustomAttribute<TvAutoMwAttribute>();
                 if (!loadedType.IsClass || loadedType.IsAbstract || attr == null)

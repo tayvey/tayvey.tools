@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using Tayvey.Tools.Attributes;
 using Tayvey.Tools.Enums;
+using Tayvey.Tools.Helpers;
 
 namespace Tayvey.Tools.Extensions
 {
@@ -41,7 +42,7 @@ namespace Tayvey.Tools.Extensions
         {
             var result = new List<(Type autoDI, TvAutoDILifeCycle lifeCycle, Type? i)>();
 
-            foreach (var loadedType in TvAssemblyEx.LoadedTypes)
+            foreach (var loadedType in TvAssembly.GetLoadedAssemblies())
             {
                 var attr = loadedType.GetCustomAttribute<TvAutoDIAttribute>();
                 if (!loadedType.IsClass || loadedType.IsAbstract || attr == null)

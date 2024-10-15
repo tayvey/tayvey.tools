@@ -33,12 +33,7 @@ namespace Tayvey.Tools.Models
         /// <summary>
         /// 消息
         /// </summary>
-        public string Message { get; private set; }
-
-        /// <summary>
-        /// 数据量
-        /// </summary>
-        public long? Total { get; set; }
+        public string? Message { get; set; }
 
         /// <summary>
         /// 数据
@@ -46,14 +41,17 @@ namespace Tayvey.Tools.Models
         public object? Data { get; set; }
 
         /// <summary>
+        /// 数据量
+        /// </summary>
+        public long? Total { get; set; }
+
+        /// <summary>
         /// 初始化
         /// </summary>
         /// <param name="status"></param>
-        /// <param name="message"></param>
-        public TvWebApiResult(TvApiStatus status, string message)
+        public TvWebApiResult(TvApiStatus status)
         {
             Status = status;
-            Message = message;
         }
 
         /// <summary>
@@ -84,8 +82,7 @@ namespace Tayvey.Tools.Models
             // 返回
             return response.WriteAsync(JsonConvert.SerializeObject(this, new JsonSerializerSettings
             {
-                ContractResolver = new CamelCasePropertyNamesContractResolver(), // 首字母小写
-                NullValueHandling = NullValueHandling.Ignore // 为NULL的字段过滤
+                ContractResolver = new CamelCasePropertyNamesContractResolver() // 首字母小写
             }));
         }
     }

@@ -5,8 +5,8 @@
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
-      "launchUrl": "/soap/soapdemo.asmx",
-      "applicationUrl": "http://0.0.0.0",
+      "launchUrl": "swagger",
+      "applicationUrl": "http://127.0.0.1",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }

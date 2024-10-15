@@ -58,12 +58,14 @@ namespace Tayvey.Tools.Services
                     response.StatusCode = TvApiStatus.Error.GetHashCode();
                     response.ContentType = "application/json; charset=utf-8";
 
-                    var result = new TvWebApiResult(TvApiStatus.Error, e.Message);
+                    var result = new TvWebApiResult(TvApiStatus.Error)
+                    {
+                        Message = e.Message
+                    };
 
                     await response.WriteAsync(JsonConvert.SerializeObject(result, new JsonSerializerSettings
                     {
-                        ContractResolver = new CamelCasePropertyNamesContractResolver(), // 首字母小写
-                        NullValueHandling = NullValueHandling.Ignore // 为NULL的字段过滤
+                        ContractResolver = new CamelCasePropertyNamesContractResolver() // 首字母小写
                     }));
                 }
             }

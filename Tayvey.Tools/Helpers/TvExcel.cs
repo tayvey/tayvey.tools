@@ -7,17 +7,17 @@ using System.Text;
 using System.Threading.Tasks;
 using Tayvey.Tools.Models;
 
-namespace Tayvey.Tools.Extensions
+namespace Tayvey.Tools.Helpers
 {
     /// <summary>
     /// EXCEL文件操作扩展
     /// </summary>
-    public static class TvExcelEx
+    public static class TvExcel
     {
         /// <summary>
         /// 静态构造
         /// </summary>
-        static TvExcelEx()
+        static TvExcel()
         {
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial; // EPPlus非商业用途
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance); // 注册字符编码
