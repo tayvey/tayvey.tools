@@ -4,7 +4,7 @@ using System.Linq;
 namespace Tayvey.Tools.Helpers
 {
     /// <summary>
-    /// 程序集扩展
+    /// 程序集
     /// </summary>
     internal static class TvAssembly
     {

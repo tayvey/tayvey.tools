@@ -10,7 +10,7 @@ using Tayvey.Tools.Models;
 namespace Tayvey.Tools.Helpers
 {
     /// <summary>
-    /// EXCEL文件操作扩展
+    /// EXCEL操作
     /// </summary>
     public static class TvExcel
     {

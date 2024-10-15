@@ -1,3 +1,4 @@
+using SoapCore;
 using Tayvey.Tools.Extensions;
 using Tayvey.Tools.Models;
 
@@ -9,7 +10,7 @@ builder.Services.AddControllers();
 // 配置服务
 builder.Services.AddTvConfig(builder.Configuration);
 // SOAP服务
-builder.Services.AddTvSoap();
+builder.Services.AddSoapCore();
 // MONGODB服务
 var tvMongoConfigs = builder.Configuration.GetSection("mongodb").Get<TvMongoConnConfig[]>() ?? [];
 builder.Services.AddTvMongo(tvMongoConfigs);
@@ -19,6 +20,10 @@ builder.Services.AddTvRedis(tvRedisConfigs);
 // SWAGGER服务
 var tvSwaggerConfig = builder.Configuration.GetSection("swagger").Get<TvSwaggerConfig>() ?? new();
 builder.Services.AddTvSwagger(tvSwaggerConfig);
+// 定时任务服务
+builder.Services.AddTvAutoCronJob();
+// 自动模型校验服务
+builder.Services.AddTvAutoModelState();
 // 自动依赖注入服务
 builder.Services.AddTvAutoDI();
 #endregion
@@ -26,15 +31,15 @@ builder.Services.AddTvAutoDI();
 var app = builder.Build();
 
 #region App
-// 全局异常
+// 全局异常捕获
 app.UseTvGlobalEx();
 // 自动SOAP注册
-app.UseTvSoap();
+app.UseTvAutoSoap();
 // SWAGGER注册
 app.UseTvSwagger();
 // 自动中间件注册
 app.UseTvAutoMw();
 
 app.MapControllers();
-app.Run(); 
+app.Run();
 #endregion

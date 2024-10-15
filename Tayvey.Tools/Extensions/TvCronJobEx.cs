@@ -65,6 +65,14 @@ namespace Tayvey.Tools.Extensions
                     continue;
                 }
 
+                var allInterfaces = loadedType.GetInterfaces();
+                var baseInterfaces = allInterfaces.AsParallel().SelectMany(x => x.GetInterfaces());
+                var interfaces = allInterfaces.Except(baseInterfaces).ToList();
+                if (!interfaces.Any(i => i.FullName == "Quartz.IJob"))
+                {
+                    continue;
+                }
+
                 if (string.IsNullOrWhiteSpace(attr._cron))
                 {
                     continue;

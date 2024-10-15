@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
 using SoapCore;
 using System;
 using System.Collections.Generic;
@@ -19,21 +18,12 @@ namespace Tayvey.Tools.Extensions
     public static class TvAutoSoapEx
     {
         /// <summary>
-        /// 添加SOAP服务
-        /// </summary>
-        /// <param name="services"></param>
-        public static void AddTvSoap(this IServiceCollection services)
-        {
-            services.AddSoapCore();
-        }
-
-        /// <summary>
         /// 使用自动注册SOAP
         /// </summary>
         /// <param name="app"></param>
         /// <param name="marks"></param>
         /// <exception cref="Exception"></exception>
-        public static void UseTvSoap(this IApplicationBuilder app, params string[] marks)
+        public static void UseTvAutoSoap(this IApplicationBuilder app, params string[] marks)
         {
             // 获取自动注册的SOAP
             var autoSoaps = GetAutoSoapInterfaces(marks);
