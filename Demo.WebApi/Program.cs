@@ -14,6 +14,9 @@ builder.Services.AddSoapCore();
 // MONGODB服务
 var tvMongoConfigs = builder.Configuration.GetSection("mongodb").Get<TvMongoConnConfig[]>() ?? [];
 builder.Services.AddTvMongo(tvMongoConfigs);
+// SQLSUGAR服务
+var tvSqlSugarConfigs = builder.Configuration.GetSection("sqlSugar").Get<TvSqlSugarConnConfig[]>() ?? [];
+builder.Services.AddTvSqlSugar(tvSqlSugarConfigs);
 // REDIS服务
 var tvRedisConfigs = builder.Configuration.GetSection("redis").Get<TvRedisConnConfig[]>() ?? [];
 builder.Services.AddTvRedis(tvRedisConfigs);

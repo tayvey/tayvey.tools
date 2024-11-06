@@ -17,17 +17,20 @@ public class DemoController : TvControllerBase
     private readonly IMongoDemo _mongoDemo;
     private readonly ITvConfig _config;
     private readonly IRedisDemo _redisDemo;
+    private readonly IMysqlDemo _mysqlDemo;
+    private readonly IMssqlDemo _mssqlDemo;
 
     /// <summary>
     /// 初始化
     /// </summary>
-    /// <param name="demo"></param>
-    public DemoController(IDemo demo, IMongoDemo mongoDemo, ITvConfig config, IRedisDemo redisDemo)
+    public DemoController(IDemo demo, IMongoDemo mongoDemo, ITvConfig config, IRedisDemo redisDemo, IMysqlDemo mysqlDemo, IMssqlDemo mssqlDemo)
     {
         _demo = demo;
         _mongoDemo = mongoDemo;
         _config = config;
         _redisDemo = redisDemo;
+        _mysqlDemo = mysqlDemo;
+        _mssqlDemo = mssqlDemo;
     }
 
     /// <summary>
@@ -114,5 +117,25 @@ public class DemoController : TvControllerBase
     public IActionResult TestModelState(ModelStateDemoParam req)
     {
         return Ok();
+    }
+
+    /// <summary>
+    /// 获取mysql Name列表
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet]
+    public async Task<IActionResult> GetMysqlNamesAsync()
+    {
+        return TvOk("", await _mysqlDemo.GetNamesAsync());
+    }
+
+    /// <summary>
+    /// 获取mssql Name列表
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet]
+    public async Task<IActionResult> GetMssqlNamesAsync()
+    {
+        return TvOk("", await _mssqlDemo.GetNamesAsync());
     }
 }
