@@ -6,7 +6,7 @@
 	<OpenApiGenerateDocuments>false</OpenApiGenerateDocuments>
 	<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 	<Title>$(AssemblyName)</Title>
-	<Version>0.1.1-beta</Version>
+	<Version>0.1.2-beta</Version>
 	<Authors>tayvey</Authors>
 	<Company />
 	<Description>...</Description>
@@ -36,6 +36,7 @@
   </ItemGroup>
 	
   <ItemGroup>
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
     <PackageReference Include="EPPlus" Version="7.4.2" />
     <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
@@ -50,6 +51,18 @@
     <PackageReference Include="SqlSugarCore" Version="5.1.4.170" />
     <PackageReference Include="StackExchange.Redis" Version="2.8.16" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.9.0" />
+  </ItemGroup>
+	
+  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+    <PackageReference Include="AutoMapper">
+      <Version>12.0.1</Version>
+    </PackageReference>
+  </ItemGroup>
+	
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
+    <PackageReference Include="AutoMapper">
+      <Version>12.0.1</Version>
+    </PackageReference>
   </ItemGroup>
 
 </Project>

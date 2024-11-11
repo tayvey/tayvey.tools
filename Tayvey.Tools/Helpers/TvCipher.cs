@@ -1,4 +1,5 @@
-﻿using System.Security.Cryptography;
+﻿using System;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace Tayvey.Tools.Helpers
@@ -13,7 +14,7 @@ namespace Tayvey.Tools.Helpers
         /// </summary>
         /// <param name="str"></param>
         /// <returns></returns>
-        public static string ToMD5(this string str)
+        public static string TvToMD5(this string str)
         {
             var buffer = Encoding.UTF8.GetBytes(str);
 
@@ -27,6 +28,17 @@ namespace Tayvey.Tools.Helpers
             }
 
             return sb.ToString();
+        }
+
+        /// <summary>
+        /// Base64解码
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public static string TvBase64Decoding(this string str)
+        {
+            var buffer = Convert.FromBase64String(str);
+            return Encoding.UTF8.GetString(buffer);
         }
     }
 }

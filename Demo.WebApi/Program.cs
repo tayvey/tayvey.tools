@@ -29,6 +29,8 @@ builder.Services.AddTvAutoCronJob();
 builder.Services.AddTvAutoModelState();
 // 自动依赖注入服务
 builder.Services.AddTvAutoDI();
+// 自动映射服务
+builder.Services.AddTvAutoMapper();
 #endregion
 
 var app = builder.Build();

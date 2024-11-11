@@ -1,4 +1,7 @@
 ﻿using System;
+using System.IO;
+using System.Xml;
+using System.Xml.Serialization;
 
 namespace Tayvey.Tools.Helpers
 {
@@ -140,6 +143,26 @@ namespace Tayvey.Tools.Helpers
 
             return null;
         }
+
+        /// <summary>
+        /// XML字符串转为实体
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public static T? TvToXmlEntity<T>(this string str) where T : class
+        {
+            try
+            {
+                var serializer = new XmlSerializer(typeof(T));
+                using var reader = new StringReader(str);
+                return (T?)serializer.Deserialize(reader);
+            }
+            catch
+            {
+                return null;
+            }
+        }
         #endregion
 
         #region DATETIME
@@ -176,6 +199,37 @@ namespace Tayvey.Tools.Helpers
         /// <param name="format"></param>
         /// <returns></returns>
         public static string TvToString(this decimal d, string format = "0.########") => d.ToString(format);
+        #endregion
+
+        #region ENTITY
+        /// <summary>
+        /// 实体转为XML字符串
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        public static string? TvToXmlString<T>(this T entity) where T : class, new()
+        {
+            try
+            {
+                var serializer = new XmlSerializer(typeof(T));
+                using var writer = new StringWriter();
+                var settings = new XmlWriterSettings
+                {
+                    OmitXmlDeclaration = true,
+                    Indent = false
+                };
+                using var xmlWriter = XmlWriter.Create(writer, settings);
+                var namespaces = new XmlSerializerNamespaces();
+                namespaces.Add(string.Empty, string.Empty);
+                serializer.Serialize(xmlWriter, entity, namespaces);
+                return writer.ToString();
+            }
+            catch
+            {
+                return null;
+            }
+        }
         #endregion
     }
 }

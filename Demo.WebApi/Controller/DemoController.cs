@@ -1,5 +1,7 @@
-﻿using Demo.WebApi.Business.Interfaces;
+﻿using AutoMapper;
+using Demo.WebApi.Business.Interfaces;
 using Demo.WebApi.Model;
+using Demo.WebApi.Model.Mapping;
 using Microsoft.AspNetCore.Mvc;
 using Tayvey.Tools.Interfaces;
 using Tayvey.Tools.Services;
@@ -19,11 +21,12 @@ public class DemoController : TvControllerBase
     private readonly IRedisDemo _redisDemo;
     private readonly IMysqlDemo _mysqlDemo;
     private readonly IMssqlDemo _mssqlDemo;
+    private readonly IMapper _mapper;
 
     /// <summary>
     /// 初始化
     /// </summary>
-    public DemoController(IDemo demo, IMongoDemo mongoDemo, ITvConfig config, IRedisDemo redisDemo, IMysqlDemo mysqlDemo, IMssqlDemo mssqlDemo)
+    public DemoController(IDemo demo, IMongoDemo mongoDemo, ITvConfig config, IRedisDemo redisDemo, IMysqlDemo mysqlDemo, IMssqlDemo mssqlDemo, IMapper mapper)
     {
         _demo = demo;
         _mongoDemo = mongoDemo;
@@ -31,6 +34,7 @@ public class DemoController : TvControllerBase
         _redisDemo = redisDemo;
         _mysqlDemo = mysqlDemo;
         _mssqlDemo = mssqlDemo;
+        _mapper = mapper;
     }
 
     /// <summary>
@@ -137,5 +141,26 @@ public class DemoController : TvControllerBase
     public async Task<IActionResult> GetMssqlNamesAsync()
     {
         return TvOk("", await _mssqlDemo.GetNamesAsync());
+    }
+
+    /// <summary>
+    /// 自动映射测试
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet]
+    public IActionResult AutoMapperTest()
+    {
+        var entity = new MappingTestEntity
+        {
+            Id = 1,
+            FirstName = "三",
+            LastName = "张",
+            BirthDate = new DateTime(1990,1,1),
+            Gender = 1
+        };
+
+        var dto = _mapper.Map<MappingTestDto>(entity);
+
+        return TvOk("", dto);
     }
 }
