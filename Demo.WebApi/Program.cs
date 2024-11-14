@@ -7,42 +7,42 @@ var builder = WebApplication.CreateBuilder(args);
 #region Services
 builder.Services.AddControllers();
 
-// ÅäÖÃ·şÎñ
+// é…ç½®æœåŠ¡
 builder.Services.AddTvConfig(builder.Configuration);
-// SOAP·şÎñ
+// SOAPæœåŠ¡
 builder.Services.AddSoapCore();
-// MONGODB·şÎñ
+// MONGODBæœåŠ¡
 var tvMongoConfigs = builder.Configuration.GetSection("mongodb").Get<TvMongoConnConfig[]>() ?? [];
 builder.Services.AddTvMongo(tvMongoConfigs);
-// SQLSUGAR·şÎñ
+// SQLSUGARæœåŠ¡
 var tvSqlSugarConfigs = builder.Configuration.GetSection("sqlSugar").Get<TvSqlSugarConnConfig[]>() ?? [];
 builder.Services.AddTvSqlSugar(tvSqlSugarConfigs);
-// REDIS·şÎñ
+// REDISæœåŠ¡
 var tvRedisConfigs = builder.Configuration.GetSection("redis").Get<TvRedisConnConfig[]>() ?? [];
 builder.Services.AddTvRedis(tvRedisConfigs);
-// SWAGGER·şÎñ
+// SWAGGERæœåŠ¡
 var tvSwaggerConfig = builder.Configuration.GetSection("swagger").Get<TvSwaggerConfig>() ?? new();
 builder.Services.AddTvSwagger(tvSwaggerConfig);
-// ¶¨Ê±ÈÎÎñ·şÎñ
+// å®šæ—¶ä»»åŠ¡æœåŠ¡
 builder.Services.AddTvAutoCronJob();
-// ×Ô¶¯Ä£ĞÍĞ£Ñé·şÎñ
+// è‡ªåŠ¨æ¨¡å‹æ ¡éªŒæœåŠ¡
 builder.Services.AddTvAutoModelState();
-// ×Ô¶¯ÒÀÀµ×¢Èë·şÎñ
+// è‡ªåŠ¨ä¾èµ–æ³¨å…¥æœåŠ¡
 builder.Services.AddTvAutoDI();
-// ×Ô¶¯Ó³Éä·şÎñ
+// è‡ªåŠ¨æ˜ å°„æœåŠ¡
 builder.Services.AddTvAutoMapper();
 #endregion
 
 var app = builder.Build();
 
 #region App
-// È«¾ÖÒì³£²¶»ñ
+// å…¨å±€å¼‚å¸¸æ•è·
 app.UseTvGlobalEx();
-// ×Ô¶¯SOAP×¢²á
+// è‡ªåŠ¨SOAPæ³¨å†Œ
 app.UseTvAutoSoap();
-// SWAGGER×¢²á
+// SWAGGERæ³¨å†Œ
 app.UseTvSwagger();
-// ×Ô¶¯ÖĞ¼ä¼ş×¢²á
+// è‡ªåŠ¨ä¸­é—´ä»¶æ³¨å†Œ
 app.UseTvAutoMw();
 
 app.MapControllers();
