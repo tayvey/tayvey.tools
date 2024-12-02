@@ -93,13 +93,19 @@ namespace Tayvey.Tools.Services
         /// 获取集合
         /// </summary>
         /// <typeparam name="T"></typeparam>
+        /// <param name="dbName"></param>
         /// <returns></returns>
-        public IMongoCollection<T> GetCollection<T>() where T : class, new()
+        public IMongoCollection<T> GetCollection<T>(string? dbName = null) where T : class, new()
         {
             var attr = typeof(T).GetCustomAttribute<TvMongoAttribute>()
                 ?? throw new Exception($"MONGODB获取集合异常. 实体未添加特性TvMongoAttribute. [{typeof(T).FullName}]");
 
-            return GetClient(attr._key).GetDatabase(attr._dbName).GetCollection<T>(attr._collectionName);
+            if (string.IsNullOrWhiteSpace(dbName))
+            {
+                dbName = attr._dbName;
+            }
+
+            return GetClient(attr._key).GetDatabase(dbName).GetCollection<T>(attr._collectionName);
         }
     }
 }

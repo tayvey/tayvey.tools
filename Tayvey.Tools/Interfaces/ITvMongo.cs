@@ -36,7 +36,8 @@ namespace Tayvey.Tools.Interfaces
         /// 获取集合
         /// </summary>
         /// <typeparam name="T"></typeparam>
+        /// <param name="dbName"></param>
         /// <returns></returns>
-        IMongoCollection<T> GetCollection<T>() where T : class, new();
+        IMongoCollection<T> GetCollection<T>(string? dbName = null) where T : class, new();
     }
 }

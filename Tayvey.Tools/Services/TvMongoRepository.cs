@@ -15,9 +15,14 @@ namespace Tayvey.Tools.Services
         where T : class, new()
     {
         /// <summary>
+        /// MONGODB接口
+        /// </summary>
+        private readonly ITvMongo _tvMongo;
+
+        /// <summary>
         /// 集合操作对象
         /// </summary>
-        private readonly IMongoCollection<T> _collection;
+        private IMongoCollection<T> _collection;
 
         /// <summary>
         /// 初始化
@@ -25,6 +30,7 @@ namespace Tayvey.Tools.Services
         /// <param name="tvMongo"></param>
         public TvMongoRepository(ITvMongo tvMongo)
         {
+            _tvMongo = tvMongo;
             _collection = tvMongo.GetCollection<T>();
         }
 
@@ -37,6 +43,7 @@ namespace Tayvey.Tools.Services
         /// <param name="collectionName"></param>
         public TvMongoRepository(ITvMongo tvMongo, string key, string dbName, string collectionName)
         {
+            _tvMongo = tvMongo;
             _collection = tvMongo.GetCollection<T>(key, dbName, collectionName);
         }
 
@@ -45,6 +52,15 @@ namespace Tayvey.Tools.Services
         /// </summary>
         /// <returns></returns>
         public IMongoCollection<T> GetCollection() => _collection;
+
+        /// <summary>
+        /// 切换数据库
+        /// </summary>
+        /// <param name="dbName"></param>
+        public void ChangeDB(string dbName)
+        {
+            _collection = _tvMongo.GetCollection<T>(dbName);
+        }
 
         #region 查询
         /// <summary>

@@ -18,6 +18,12 @@ namespace Tayvey.Tools.Interfaces
         /// <returns></returns>
         IMongoCollection<T> GetCollection();
 
+        /// <summary>
+        /// 切换数据库
+        /// </summary>
+        /// <param name="dbName"></param>
+        void ChangeDB(string dbName);
+
         #region 查询
         /// <summary>
         /// 查询单条
