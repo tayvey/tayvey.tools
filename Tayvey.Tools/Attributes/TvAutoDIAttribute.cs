@@ -1,7 +1,6 @@
 using System;
-using Tayvey.Tools.Enums;
 
-namespace Tayvey.Tools.Attributes
+namespace Tayvey.Tools
 {
     /// <summary>
     /// 自动依赖注入特性
@@ -18,7 +17,7 @@ namespace Tayvey.Tools.Attributes
         /// 初始化
         /// </summary>
         /// <param name="lifeCycle"></param>
-        public TvAutoDIAttribute(TvAutoDILifeCycle lifeCycle)
+        public TvAutoDIAttribute(TvAutoDILifeCycle lifeCycle = TvAutoDILifeCycle.Scoped)
         {
             _lifeCycle = lifeCycle;
         }

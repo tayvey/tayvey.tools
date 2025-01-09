@@ -1,19 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.1;net6.0;net8.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.1;net8.0</TargetFrameworks>
     <Nullable>enable</Nullable>
-	<OpenApiGenerateDocuments>false</OpenApiGenerateDocuments>
-	<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-	<Title>$(AssemblyName)</Title>
-	<Version>0.1.3-beta</Version>
-	<Authors>tayvey</Authors>
-	<Company />
-	<Description>...</Description>
-	<PackageReadmeFile>README.md</PackageReadmeFile>
-	<RepositoryUrl>https://github.com/tayvey/tayvey.tools</RepositoryUrl>
-	<PackageLicenseFile>LICENSE</PackageLicenseFile>
-	<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    <OpenApiGenerateDocuments>false</OpenApiGenerateDocuments>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Title>$(AssemblyName)</Title>
+    <Version>0.1.4-beta</Version>
+    <Authors>tayvey</Authors>
+    <Company />
+    <Description>...</Description>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/tayvey/tayvey.tools</RepositoryUrl>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
   </PropertyGroup>
 
   <ItemGroup>
@@ -25,32 +25,19 @@
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
-	<None Include="..\.gitignore">
-		<Pack>True</Pack>
-		<PackagePath>\</PackagePath>
-	</None>
-	<None Include="..\TODO-LIST.md">
-		<Pack>True</Pack>
-		<PackagePath>\</PackagePath>
-	</None>
   </ItemGroup>
 	
   <ItemGroup>
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
-    <PackageReference Include="EPPlus" Version="7.4.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.2" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.1" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.2" />
-    <PackageReference Include="MongoDB.Driver" Version="3.0.0" />
+    <PackageReference Include="EPPlus" Version="7.5.2" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="9.0.0" />
+    <PackageReference Include="MongoDB.Driver" Version="3.1.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Quartz.AspNetCore" Version="3.13.1" />
     <PackageReference Include="SoapCore" Version="1.1.0.51" />
-    <PackageReference Include="SqlSugarCore" Version="5.1.4.170" />
-    <PackageReference Include="StackExchange.Redis" Version="2.8.16" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.9.0" />
+    <PackageReference Include="SqlSugarCore" Version="5.1.4.172" />
+    <PackageReference Include="StackExchange.Redis" Version="2.8.24" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="7.2.0" />
   </ItemGroup>
 	
 </Project>

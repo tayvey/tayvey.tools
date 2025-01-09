@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.IO;
-using Tayvey.Tools.Enums;
-using Tayvey.Tools.Models;
 
-namespace Tayvey.Tools.Services
+namespace Tayvey.Tools
 {
     /// <summary>
     /// 基础控制器
@@ -13,17 +11,18 @@ namespace Tayvey.Tools.Services
         /// <summary>
         /// 返回
         /// </summary>
-        /// <param name="status"></param>
+        /// <param name="statusCode"></param>
         /// <param name="message"></param>
         /// <param name="data"></param>
-        /// <param name="total"></param>
         /// <returns></returns>
-        private static TvWebApiResult Return(TvApiStatus status, string? message = null, object? data = null, long? total = null) => new TvWebApiResult(status)
+        private static ObjectResult Return(int statusCode, string message, object? data = null) => new ObjectResult(new
         {
-            ContentType = "application/json; charset=utf-8",
+            StatusCode = statusCode,
             Message = message,
-            Data = data,
-            Total = total
+            Data = data
+        })
+        {
+            StatusCode = statusCode
         };
 
         /// <summary>
@@ -31,64 +30,55 @@ namespace Tayvey.Tools.Services
         /// </summary>
         /// <param name="message"></param>
         /// <param name="data"></param>
-        /// <param name="total"></param>
         /// <returns></returns>
-        public static TvWebApiResult TvOk(string? message = null, object? data = null, long? total = null) => Return(TvApiStatus.Ok, message, data, total);
+        public static IActionResult TvOk(string message, object? data = null) => Return(200, message, data);
 
         /// <summary>
         /// 返回失败
         /// </summary>
         /// <param name="message"></param>
         /// <param name="data"></param>
-        /// <param name="total"></param>
         /// <returns></returns>
-        public static TvWebApiResult TvFail(string? message = null, object? data = null, long? total = null) => Return(TvApiStatus.Fail, message, data, total);
+        public static IActionResult TvFail(string message, object? data = null) => Return(400, message, data);
 
         /// <summary>
         /// 返回鉴权失败
         /// </summary>
         /// <param name="message"></param>
         /// <param name="data"></param>
-        /// <param name="total"></param>
         /// <returns></returns>
-        public static TvWebApiResult TvUnauthorized(string? message = null, object? data = null, long? total = null) => Return(TvApiStatus.Unauthorized, message, data, total);
+        public static IActionResult TvUnauthorized(string message, object? data = null) => Return(401, message, data);
 
         /// <summary>
         /// 返回资源不存在
         /// </summary>
         /// <param name="message"></param>
         /// <param name="data"></param>
-        /// <param name="total"></param>
         /// <returns></returns>
-        public static TvWebApiResult TvNotFound(string? message = null, object? data = null, long? total = null) => Return(TvApiStatus.NotFound, message, data, total);
+        public static IActionResult TvNotFound(string message, object? data = null) => Return(404, message, data);
 
         /// <summary>
         /// 返回方法不被允许
         /// </summary>
         /// <param name="message"></param>
         /// <param name="data"></param>
-        /// <param name="total"></param>
         /// <returns></returns>
-        public static TvWebApiResult TvMethodNotAllowed(string? message = null, object? data = null, long? total = null) => Return(TvApiStatus.MethodNotAllowed, message, data, total);
+        public static IActionResult TvMethodNotAllowed(string message, object? data = null) => Return(405, message, data);
 
         /// <summary>
         /// 返回异常
         /// </summary>
         /// <param name="message"></param>
         /// <param name="data"></param>
-        /// <param name="total"></param>
         /// <returns></returns>
-        public static TvWebApiResult TvError(string? message = null, object? data = null, long? total = null) => Return(TvApiStatus.Error, message, data, total);
+        public static IActionResult TvError(string message, object? data = null) => Return(500, message, data);
 
         /// <summary>
-        /// 返回文件
+        /// 返回文件流
         /// </summary>
         /// <param name="stream"></param>
         /// <param name="fileName"></param>
         /// <returns></returns>
-        public static TvWebApiStreamResult TvFile(Stream stream, string fileName) => new TvWebApiStreamResult(stream, fileName)
-        {
-            ContentType = "application/octet-stream"
-        };
+        public IActionResult TvFile(Stream stream, string fileName) => File(stream, "application/octet-stream", fileName);
     }
 }

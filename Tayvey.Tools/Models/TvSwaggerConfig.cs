@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 
-namespace Tayvey.Tools.Models
+namespace Tayvey.Tools
 {
     /// <summary>
-    /// SWAGGER配置
+    /// Swagger配置
     /// </summary>
     public class TvSwaggerConfig
     {

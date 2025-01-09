@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Tayvey.Tools.Attributes
+namespace Tayvey.Tools
 {
     /// <summary>
     /// 自动注册中间件特性
@@ -11,7 +11,7 @@ namespace Tayvey.Tools.Attributes
         /// <summary>
         /// 排序号
         /// </summary>
-        internal readonly uint _sort;
+        internal readonly int _sort;
 
         /// <summary>
         /// 标识数组
@@ -23,7 +23,7 @@ namespace Tayvey.Tools.Attributes
         /// </summary>
         /// <param name="sort"></param>
         /// <param name="marks"></param>
-        public TvAutoMwAttribute(uint sort = 0, params string[] marks)
+        public TvAutoMwAttribute(int sort = 0, params string[] marks)
         {
             _sort = sort;
             _marks = marks;

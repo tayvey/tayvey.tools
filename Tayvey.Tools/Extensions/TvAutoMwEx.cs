@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using System;
 using System.Linq;
 using System.Reflection;
-using Tayvey.Tools.Attributes;
-using Tayvey.Tools.Helpers;
 
-namespace Tayvey.Tools.Extensions
+namespace Tayvey.Tools
 {
     /// <summary>
     /// 自动注册中间件扩展
@@ -31,9 +29,9 @@ namespace Tayvey.Tools.Extensions
         /// 获取自动注册的中间件
         /// </summary>
         /// <returns></returns>
-        private static List<(Type middleware, uint sort)> GetMiddlewares(string[] marks)
+        private static List<(Type middleware, int sort)> GetMiddlewares(string[] marks)
         {
-            var result = new List<(Type middleware, uint sort)>();
+            var result = new List<(Type middleware, int sort)>();
 
             foreach (var loadedType in TvAssembly.GetLoadedAssemblies())
             {

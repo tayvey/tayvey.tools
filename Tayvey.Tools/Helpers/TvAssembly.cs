@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace Tayvey.Tools.Helpers
+namespace Tayvey.Tools
 {
     /// <summary>
     /// 程序集

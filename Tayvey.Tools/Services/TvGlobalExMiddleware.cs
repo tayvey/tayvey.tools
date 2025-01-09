@@ -3,10 +3,8 @@ using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json;
 using System;
 using System.Threading.Tasks;
-using Tayvey.Tools.Enums;
-using Tayvey.Tools.Models;
 
-namespace Tayvey.Tools.Services
+namespace Tayvey.Tools
 {
     /// <summary>
     /// 全局异常处理中间件
@@ -19,19 +17,12 @@ namespace Tayvey.Tools.Services
         private readonly RequestDelegate _next;
 
         /// <summary>
-        /// 异常处理
-        /// </summary>
-        private readonly Action<Exception, HttpContext>? _exProcess;
-
-        /// <summary>
         /// 初始化构造
         /// </summary>
         /// <param name="next">委托</param>
-        /// <param name="exProcess">异常处理</param>
-        public TvGlobalExMiddleware(RequestDelegate next, Action<Exception, HttpContext>? exProcess = null)
+        public TvGlobalExMiddleware(RequestDelegate next)
         {
             _next = next;
-            _exProcess = exProcess;
         }
 
         /// <summary>
@@ -47,27 +38,19 @@ namespace Tayvey.Tools.Services
             }
             catch (Exception e)
             {
-                if (_exProcess != null)
+                var response = context.Response;
+
+                response.StatusCode = 500;
+                response.ContentType = "application/json; charset=utf-8";
+
+                var result = TvControllerBase.TvError("系统异常, 请联系管理员");
+
+                Console.WriteLine($"{e.Message}\n{e.StackTrace}");
+
+                await response.WriteAsync(JsonConvert.SerializeObject(result, new JsonSerializerSettings
                 {
-                    _exProcess(e, context);
-                }
-                else
-                {
-                    var response = context.Response;
-
-                    response.StatusCode = TvApiStatus.Error.GetHashCode();
-                    response.ContentType = "application/json; charset=utf-8";
-
-                    var result = new TvWebApiResult(TvApiStatus.Error)
-                    {
-                        Message = e.Message
-                    };
-
-                    await response.WriteAsync(JsonConvert.SerializeObject(result, new JsonSerializerSettings
-                    {
-                        ContractResolver = new CamelCasePropertyNamesContractResolver() // 首字母小写
-                    }));
-                }
+                    ContractResolver = new CamelCasePropertyNamesContractResolver() // 首字母小写
+                }));
             }
         }
     }

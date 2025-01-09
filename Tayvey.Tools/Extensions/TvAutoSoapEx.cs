@@ -6,11 +6,8 @@ using System.Linq;
 using System.Reflection;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
-using Tayvey.Tools.Attributes;
-using Tayvey.Tools.Enums;
-using Tayvey.Tools.Helpers;
 
-namespace Tayvey.Tools.Extensions
+namespace Tayvey.Tools
 {
     /// <summary>
     /// SOAP扩展

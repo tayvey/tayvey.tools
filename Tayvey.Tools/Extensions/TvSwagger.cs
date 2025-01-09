@@ -3,12 +3,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using System;
 using System.IO;
-using Tayvey.Tools.Models;
 
-namespace Tayvey.Tools.Extensions
+namespace Tayvey.Tools
 {
     /// <summary>
-    /// SWAGGER扩展
+    /// Swagger扩展
     /// </summary>
     public static class TvSwagger
     {
@@ -18,7 +17,7 @@ namespace Tayvey.Tools.Extensions
         private static TvSwaggerConfig? _config;
 
         /// <summary>
-        /// 添加SWAGGER服务
+        /// 添加Swagger服务
         /// </summary>
         /// <param name="services"></param>
         public static void AddTvSwagger(this IServiceCollection services, TvSwaggerConfig config)
@@ -60,32 +59,32 @@ namespace Tayvey.Tools.Extensions
                     });
 
                     opt.AddSecurityRequirement(new OpenApiSecurityRequirement
-                {
                     {
-                        new OpenApiSecurityScheme
                         {
-                            Reference = new OpenApiReference
+                            new OpenApiSecurityScheme
                             {
-                                Type = ReferenceType.SecurityScheme,
-                                Id = header.Key
-                            }
-                        },
-                        Array.Empty<string>()
-                    }
-                });
+                                Reference = new OpenApiReference
+                                {
+                                    Type = ReferenceType.SecurityScheme,
+                                    Id = header.Key
+                                }
+                            },
+                            Array.Empty<string>()
+                        }
+                    });
                 }
             });
         }
 
         /// <summary>
-        /// 使用SWAGGER
+        /// 使用Swagger
         /// </summary>
         /// <param name="app"></param>
         public static void UseTvSwagger(this IApplicationBuilder app)
         {
             if (_config == null)
             {
-                throw new Exception($"SWAGGER初始化异常. 配置异常.");
+                throw new Exception($"Swagger初始化异常. 配置异常.");
             }
 
             // 使用Swagger

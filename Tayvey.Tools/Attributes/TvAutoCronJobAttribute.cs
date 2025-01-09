@@ -1,6 +1,6 @@
 using System;
 
-namespace Tayvey.Tools.Attributes
+namespace Tayvey.Tools
 {
     /// <summary>
     /// 自动注册定时任务特性

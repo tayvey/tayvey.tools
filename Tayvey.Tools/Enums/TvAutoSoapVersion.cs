@@ -1,4 +1,4 @@
-﻿namespace Tayvey.Tools.Enums
+﻿namespace Tayvey.Tools
 {
     /// <summary>
     /// 自动SOAP版本

@@ -2,9 +2,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
-using Tayvey.Tools.Helpers;
 
-namespace Tayvey.Tools.Extensions
+namespace Tayvey.Tools
 {
     /// <summary>
     /// 自动映射扩展

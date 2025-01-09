@@ -2,7 +2,7 @@
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Tayvey.Tools.Helpers
+namespace Tayvey.Tools
 {
     /// <summary>
     /// 密钥

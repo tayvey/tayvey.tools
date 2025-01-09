@@ -4,7 +4,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Tayvey.Tools.Helpers
+namespace Tayvey.Tools
 {
     /// <summary>
     /// TvTcp客户端

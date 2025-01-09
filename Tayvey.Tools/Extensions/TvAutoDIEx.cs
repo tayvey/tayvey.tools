@@ -3,11 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Tayvey.Tools.Attributes;
-using Tayvey.Tools.Enums;
-using Tayvey.Tools.Helpers;
 
-namespace Tayvey.Tools.Extensions
+namespace Tayvey.Tools
 {
     /// <summary>
     /// 自动依赖注入扩展

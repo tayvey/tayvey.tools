@@ -1,0 +1,24 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "清理打包目录",
+            "type": "shell",
+            "command": "Remove-Item -Path ${workspaceFolder}\\Tayvey.Tools\\bin\\Release\\* -Recurse -Force",
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "打包",
+            "dependsOn": "清理打包目录",
+            "type": "process",
+            "command": "dotnet",
+            "args": [
+                "build",
+                "-c",
+                "Release",
+                "${workspaceFolder}/Tayvey.Tools/Tayvey.Tools.csproj"
+            ],
+            "problemMatcher": "$msCompile"
+        }
+    ]
+}

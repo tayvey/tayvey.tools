@@ -3,7 +3,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 
-namespace Tayvey.Tools.Helpers
+namespace Tayvey.Tools
 {
     /// <summary>
     /// TvTcp服务端

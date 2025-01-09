@@ -1,7 +1,6 @@
 ﻿using System;
-using Tayvey.Tools.Enums;
 
-namespace Tayvey.Tools.Attributes
+namespace Tayvey.Tools
 {
     /// <summary>
     /// 自动注册SOAP特性
@@ -30,7 +29,7 @@ namespace Tayvey.Tools.Attributes
         /// <param name="version"></param>
         /// <param name="url"></param>
         /// <param name="marks"></param>
-        public TvAutoSoapAttribute(TvAutoSoapVersion version, string url, params string[] marks)
+        public TvAutoSoapAttribute(string url, TvAutoSoapVersion version = TvAutoSoapVersion.Soap12, params string[] marks)
         {
             _version = version;
             _url = url;

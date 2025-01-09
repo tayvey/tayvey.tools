@@ -1,7 +1,7 @@
-﻿namespace Tayvey.Tools.Models
+﻿namespace Tayvey.Tools
 {
     /// <summary>
-    /// EXCEL单元格信息
+    /// Excel单元格信息
     /// </summary>
     public sealed class TvExcelCell
     {
